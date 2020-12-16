@@ -11,9 +11,8 @@ carti fetch packagename
 carti install foobar
 carti uninstall foobar
 carti bundle --type rom --name foobar --desc "a simple foobar package"
-
-
-
+*/
+/*
 carti install foobar // selects what to add to the running carti package
 (
 checks package existence locally 

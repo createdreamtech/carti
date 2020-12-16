@@ -1,4 +1,4 @@
 import  program from "commander" 
 export interface CartiCommand {
-    (x: () => Promise<void>): program.Command
+    (x: (...y:any) => Promise<void>): program.Command
 }
