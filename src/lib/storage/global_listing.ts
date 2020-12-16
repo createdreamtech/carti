@@ -19,6 +19,7 @@ export class GlobalListing {
         this.dir = dir
         this.packageListingPath = `${dir}/${GLOBAL_PACKAGE_LISTING}`;
         //TODO check that the listing file itself is correct
+        fs.ensureDirSync(dir) 
         if(fs.existsSync(this.packageListingPath) === false){
             fs.writeJSONSync(this.packageListingPath, defaultPackage)
         }    
