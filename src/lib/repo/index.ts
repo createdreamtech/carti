@@ -4,6 +4,9 @@ import url from "url"
 import { Readable } from "stream";
 import { Fetcher } from "../fetcher";
 import { parseBundlesFile } from "@createdreamtech/carti-lib"
+import {makeLogger} from "../logging"
+import * as utils from "../utils"
+const logger = makeLogger("Repo")
 
 const BUNDLES_NAME=".bundles.json"
 export class Repo {
