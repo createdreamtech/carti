@@ -1,41 +1,36 @@
 import program, { commands } from "commander";
+import { makeLogger } from "../../lib/logging"
 import { Repo } from "../../lib/repo";
-import { CartiCommand } from "./commands";
-type Commands = "add" | "rm" | "update"
-interface RepoHandler {
-   (command:Commands, source?:string): Promise<void>
-}
-export const addRepoCommand: CartiCommand = (handler: RepoHandler): program.Command =>{
-   return program
-   .command("repo <command> [src]") 
-   .description("Manage carti packages repository")
-   .addHelpCommand('add [src]', "adds a package repository listing")
-   .addHelpCommand('rm [src]', "rm removes a package repository listing")
-   .addHelpCommand('update', "updates all package repository listings")
-   .addHelpCommand('update [src]', "updates the src package repository listing")
-   .action(handler)
-}
 
-//TODO fix error handling
-export const defaultRepoHandler = (repo: Repo): RepoHandler => {
+const logger = makeLogger("Repo Command")
+const repoHelp = `
 
-   return async (command: Commands, source?: string) => {
-      switch (command) {
-         case "add":
-            if (source)
-               await repo.add(source)
-            else {
-               // TODO replace with logger
-               console.error("total failure")
-            }
-            return
-         case "update":
-            await repo.update(source)
-            return
-         case "rm":
-            if (source)
-               await repo.rm(source)
-      }
-   }
+
+add [src] - adds a package repository listing
+rm [src] - rm removes a package respository listing 
+update - updates all package repository listings 
+update [src] - updates the src package repository listing
+
+
+Example Usage:
+repo add https://github.com/owner/repo
+`
+export const addRepoCommand = (repo: Repo): program.Command => {
+   const repoCommand = new program.Command("repo")
+      .description("Manage carti package listing repo")
+   repoCommand.command("add <src>")
+      .description("add package listing repo")
+      .action((src)=>{
+         if(!src){
+            throw new Error("could not add missing listing")
+         }
+         repo.add(src) 
+      })
+   repoCommand.command("update [src]")
+       .description("update all package listings or an individual package repo")
+      .action((src)=>repo.update(src))
+   repoCommand.command("rm <src>")
+       .description("remove")
+       .action((src)=>repo.rm(src))
+   return repoCommand
 }
-

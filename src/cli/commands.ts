@@ -2,7 +2,7 @@ import fs from "fs-extra";
 import _ from "lodash";
 import { makeLogger } from "../lib/logging";
 import { Command } from "commander";
-const logger = makeLogger("Carti", "Commands");
+const logger = makeLogger("Commands");
 
 
 

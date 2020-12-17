@@ -1,5 +1,4 @@
 import program from "commander";
-import { CartiCommand } from "./commands";
 interface FetchCommand {
     name: string
 }
