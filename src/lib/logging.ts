@@ -51,14 +51,14 @@ export class LogStream extends stream.Transform {
 
 const logStream = new LogStream(LOG_STREAM);
 
-export const makeLogger = (service: string, context: string, path: string = "/") => {
+export const makeLogger = (context: string, path: string = "/") => {
   return winston.createLogger({
     format: LOG_FORMAT,
     level: LOG_LEVEL,
     transports: new winston.transports.Stream({
       stream: logStream,
     }),
-    defaultMeta: { service, context, path },
+    defaultMeta: {context, path },
     exitOnError: false,
   });
 };
