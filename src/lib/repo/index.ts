@@ -1,5 +1,5 @@
 import { Bundle } from "@createdreamtech/carti-lib";
-import {CartiGlobalStorage} from "../storage"
+import {CartiConfigStorage} from "../storage"
 import url from "url"
 import { Readable } from "stream";
 import { Fetcher } from "../fetcher";
@@ -11,9 +11,9 @@ const logger = makeLogger("Repo")
 const BUNDLES_NAME=".bundles.json"
 export class Repo {
 
-    cgs: CartiGlobalStorage 
+    cgs: CartiConfigStorage 
     fetcher:Fetcher
-    constructor(cgs: CartiGlobalStorage, fetcher: Fetcher){
+    constructor(cgs: CartiConfigStorage, fetcher: Fetcher){
         this.cgs = cgs;
         this.fetcher = fetcher;
     }
