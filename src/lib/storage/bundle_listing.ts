@@ -13,7 +13,8 @@ export interface Listing {
     repositories. It is used to resolve the where to retrieve packages from and can be added also be
     added to from the local file path and is not restricted to a uri
 */
-export class GlobalListing {
+
+export class BundleListing {
 
     dir:string
     packageListingPath: string

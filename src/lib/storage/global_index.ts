@@ -1,5 +1,5 @@
 import {Bundle} from "@createdreamtech/carti-lib"
-import {Listing} from './global_listing'
+import {Listing} from './bundle_listing'
 
 interface Index {
     [k:string]: Bundle[]
