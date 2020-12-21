@@ -1,6 +1,7 @@
 import type {Bundle} from "@createdreamtech/carti-lib"
 import fs, { writeJSON } from 'fs-extra'
 import { makeLogger } from "../logging";
+import { Config } from "../config"
 
 export const GLOBAL_PACKAGE_LISTING=".carti_bundles.json";
 const defaultPackage = {};
@@ -18,7 +19,7 @@ export class BundleListing {
 
     dir:string
     packageListingPath: string
-    constructor(dir:string){
+    constructor(dir:string,fileName: string){
         this.dir = dir
         this.packageListingPath = `${dir}/${GLOBAL_PACKAGE_LISTING}`;
         //TODO check that the listing file itself is correct

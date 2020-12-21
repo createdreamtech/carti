@@ -3,6 +3,8 @@ import { makeLogger } from "../../lib/logging"
 import * as cartiLib from "@createdreamtech/carti-lib"
 import path from "path";
 import process from "process"
+import { CID } from "multiformats"
+import {config} from "../../lib/config"
 
 const bundler = cartiLib.bundle
 
@@ -11,9 +13,6 @@ const logger = makeLogger("Bundle Command")
 carti bundle --type rom --name foobar --desc "a simple foobar package"
 */
 type BundleType = "ram" | "rom" | "flashdrive" 
-const BUNDLES_DIR= "carti_bundles"
-import os from "os"
-
 
 interface BundleCommand {
     type: BundleType
@@ -21,16 +20,20 @@ interface BundleCommand {
     desc: string
     version: string
 }
+
 const handleBundleCommand = async(bundlePath: string, bundle: BundleCommand)=>{
     const {name, type ,desc,version} = bundle;
-    const storage = new cartiLib.Storage(new cartiLib.DiskProvider(`${process.cwd()}/${BUNDLES_DIR}`))
+    const { bundleStorage, localConfigStorage } = config
     console.log(path.resolve(bundlePath))
     const bun = await bundler.bundle({
           bundleType:type,
           name,
           path: path.resolve(bundlePath),
           version,
-      }, storage) 
+      }, bundleStorage) 
+    const bPath = bundleStorage.path(CID.parse(bun.id))
+    const bundles = [Object.assign({},bun,{uri: bPath})]
+    await localConfigStorage.add(bPath, bundles)
     console.log(`bundled: ${name} as ${bun.id}`)
 }
 
