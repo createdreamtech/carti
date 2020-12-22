@@ -33,8 +33,8 @@ export class GlobalIndex {
         return this.get("name", name)
     }
 
-    async getPackageById(name: string): Promise<Array<Bundle>>{
-        return this.get("name", name)
+    async getPackageById(id: string): Promise<Array<Bundle>>{
+        return this.get("id", name)
     }
 
     
@@ -52,12 +52,11 @@ export class GlobalIndex {
 
     }
     private async get(field:IndexType, value:string){
+        console.log(this.indices)
         if(this.indices[field].hasOwnProperty(value))
             return this.indices[field][value];
         return []
     }
-    
-
 }
 
 /*

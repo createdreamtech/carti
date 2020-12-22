@@ -10,12 +10,20 @@ export class CartiConfigStorage {
 
     globalListing: BundleListing
     globalIndex: GlobalIndex
+    private initIndex: boolean
     constructor(dir: string, listingFileName: string){
         this.globalListing = new BundleListing(dir, listingFileName)
         this.globalIndex = new GlobalIndex(() => this.globalListing.getListing())
+        this.initIndex = false
+        
     }
 
+
+
     async get(name: string): Promise<Array<Bundle>>{
+        if(!this.initIndex)
+            await this.globalIndex.updateIndex()
+
         return this.globalIndex.getPackageByName(name)
     }
 

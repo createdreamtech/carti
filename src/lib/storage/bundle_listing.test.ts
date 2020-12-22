@@ -1,4 +1,4 @@
-import {GlobalListing,GLOBAL_PACKAGE_LISTING } from "./global_listing";
+import {BundleListing } from "./bundle_listing";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
@@ -19,8 +19,8 @@ describe("global listing ~/.carti.json", ()=>{
 
     it("should crud from a listing file in specified dir", async ()=>{
         const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmp-carti-p'))
-        const globalListing = new GlobalListing(dir)
-        expect(fs.readdirSync(dir)[0]=== GLOBAL_PACKAGE_LISTING)
+        const globalListing = new BundleListing(dir, "test-listing.json")
+        expect(fs.readdirSync(dir)[0]=== "test-listing.json")
         await globalListing.add("http://fakeBundle", [mockBundle])
         let listing = await globalListing.getListing()
         console.log(listing)
