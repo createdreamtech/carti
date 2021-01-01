@@ -1,23 +1,15 @@
 import { report } from "process";
 import { makeLogger } from "./lib/logging";
 import { Repo } from "./lib/repo";
-import { CartiGlobalStorage } from "./lib/storage";
+import { CartiConfigStorage } from "./lib/storage";
 import {fetcher} from "./lib/fetcher"
 import path from "path"
 import os from "os"
 export { makeLogger } from "./lib/logging";
+import {config} from "./lib/config"
 
 const logger = makeLogger("main")
-interface Config{
-    repo: Repo,
-    cgs: CartiGlobalStorage,
-}
 
-export const startCarti = (): Config => {
-    const cgs = new CartiGlobalStorage(`${os.homedir()}/.carti`)
-    const repo = new Repo(cgs, fetcher)
-    return {cgs, repo}
-};
 
 
 
