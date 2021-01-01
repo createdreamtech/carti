@@ -52,7 +52,6 @@ export class GlobalIndex {
 
     }
     private async get(field:IndexType, value:string){
-        console.log(this.indices)
         if(this.indices[field].hasOwnProperty(value))
             return this.indices[field][value];
         return []

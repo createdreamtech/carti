@@ -10,24 +10,28 @@ export class CartiConfigStorage {
 
     globalListing: BundleListing
     globalIndex: GlobalIndex
-    private initIndex: boolean
+    private initializedIndex: boolean
     constructor(dir: string, listingFileName: string){
         this.globalListing = new BundleListing(dir, listingFileName)
         this.globalIndex = new GlobalIndex(() => this.globalListing.getListing())
-        this.initIndex = false
+        this.initializedIndex = false
         
     }
 
-
+    async setIndex(){
+        if (this.initializedIndex === false){
+            await this.globalIndex.updateIndex()
+            this.initializedIndex = true
+        }
+    }
 
     async get(name: string): Promise<Array<Bundle>>{
-        if(!this.initIndex)
-            await this.globalIndex.updateIndex()
-
+        await this.setIndex()
         return this.globalIndex.getPackageByName(name)
     }
 
     async getById(id: string): Promise<Array<Bundle>> {
+        await this.setIndex()
         return this.globalIndex.getPackageByName(name)
     }
 
