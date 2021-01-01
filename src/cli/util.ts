@@ -12,7 +12,7 @@ export function pickBundle(message: string, bundles: Array<Bundle>, renderer: Bu
         name: "bundle",
         message,
         type: "list",
-        choices
+        choices,
     }
 
 }
