@@ -24,7 +24,6 @@ interface BundleCommand {
 const handleBundleCommand = async(bundlePath: string, bundle: BundleCommand)=>{
     const {name, type ,desc,version} = bundle;
     const { bundleStorage, localConfigStorage } = config
-    console.log(path.resolve(bundlePath))
     const bun = await bundler.bundle({
           bundleType:type,
           name,
