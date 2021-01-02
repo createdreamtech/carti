@@ -10,6 +10,7 @@ import * as utils from "../util"
 import os from "os"
 import fs from "fs-extra"
 import { spawn, spawnSync } from "child_process";
+import path from "path"
 import rimraf from "rimraf";
 import  {promisify} from 'util';
 const rmAll = promisify(rimraf)
@@ -96,44 +97,27 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     let cfg = await getMachineConfig()
     cfg = clib.updatePackageEntry(bundle, cfg, options)
     await writeMachineConfig(cfg)
-/*    //check existence of config
-    // else create config
-    // read config from disk
-    // write entry into memory format of config
-    // write config to disk
-    // on flashdrive append entry
-    //config.bundleListingManager.addBundle(bun)
-    */
 }
 
 async function handleBuild(config: Config): Promise<void> {
     const cfg = await getMachineConfig()
     //const tmpDir = await fs.mkdtemp(`${os.tmpdir()}/carti_build_package`)
-    const tmpDir = await fs.mkdtemp(`carti_build_package`)
+    const tmpDir = path.resolve(await fs.mkdtemp(`carti_build_package`))
     console.log(cfg)
     const machineConfig = await clib.install(cfg,config.bundleStorage, tmpDir)
     console.log(machineConfig)
     const luaConfig = generateLuaConfig(machineConfig, "return")
     await fs.writeFile(`${tmpDir}/machine-config.lua`, luaConfig)
     await fs.copyFile(`${__dirname}/../../scripts/run-config.lua`,`${tmpDir}/run-config.lua`)
-    //const runScript = fs.createReadStream(`${__dirname}/../../scripts/run-config.lua`)
-   // const ws = await fs.createWriteStream(`${tmpDir}/run-config.lua`)
-    //runScript.pipe(ws)
-    //build stored machine
     await runPackageBuild(tmpDir)
     //clean up
     await rmAll(tmpDir)
-    //console.log(tmpDir)
-    // read config check for validity
-    // remap all the addresses for the config
-    // translate config to lua 
-    // from js call the docker file stuff to create a stored machine in cwd 
-    // with name
 }
 
 
 async function runPackageBuild(packageDir: string) {
     const { uid, gid, username } = os.userInfo()
+    console.log(packageDir)
     const command = ["run",
         "-e",
         `USER=${username}`,
@@ -150,17 +134,20 @@ async function runPackageBuild(packageDir: string) {
         "cd /opt/cartesi/packages && luapp5.3 run-config.lua machine-config && echo 'package built'"]
         //TODO improve should stream output to stdout
     const result = spawnSync("docker", command)
-    if (result.error) {
+    if (result.error || result.stderr.toString()) {
         console.error(result.stderr.toString())
         return;
     }
     console.log(result.stdout.toString())
     const storedMachinePath = `${packageDir}/cartesi-machine`
+    if(fs.existsSync(`${process.cwd()}/cartesi-machine`))
+        await rmAll(`${process.cwd()}/cartesi-machine`)
+
+    await fs.move(storedMachinePath,`${process.cwd()}/cartesi-machine`)
     await rmAll(storedMachinePath)
-    fs.move(storedMachinePath,`${process.cwd()}/cartesi-machine`)
-    const loadMachineCommand = `docker run -e USER=$(id -n) -e UID=$(id -u) \ 
-         GID=$(id -g) -v $(pwd)/cartesi-machine:/opt/cartesi-machine \
-         "cartesi/playground cartesi-machine --load='/opt/cartesi-machine'`
+    const loadMachineCommand = `docker run -e USER=$(id -u -n) -e UID=$(id -u) -e GID=$(id -g) \\
+-v $(pwd)/cartesi-machine:/opt/cartesi-machine \\
+cartesi/playground cartesi-machine --load='/opt/cartesi-machine'`
     console.log(`Copy command to run stored machine:`)    
     console.log(`${loadMachineCommand}`)
 }
