@@ -1,7 +1,7 @@
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
 import * as cartiLib from "@createdreamtech/carti-core"
-import path from "path";
+import path, { basename } from "path";
 import { CID } from "multiformats"
 import { config } from "../../lib/config"
 
@@ -23,10 +23,11 @@ const handleBundleCommand = async (bundlePath: string, bundle: BundleCommand) =>
     const bun = await bundler.bundle({
         bundleType: type,
         name,
+        fileName: path.basename(bundlePath),
         path: path.resolve(bundlePath),
         version,
     }, bundleStorage)
-    const bPath = bundleStorage.path(CID.parse(bun.id))
+    const bPath = await bundleStorage.path(CID.parse(bun.id))
     const bundles = [Object.assign({}, bun, { uri: bPath })]
     await localConfigStorage.add(bPath, bundles)
     console.log(`bundled: ${name} as ${bun.id}`)
