@@ -12,7 +12,6 @@ export function gitFetcher(): Fetcher {
 
         let [, owner, repo] = urlParts.path.split("/")
 
-        console.log(`${urlParts.protocol}${urlParts.hostname}`)
         // TODO add support for alternate git urls
         const result = await octokit.repos.getContent({
             //     baseUrl: `${urlParts.protocol}//${urlParts.hostname!}`,
