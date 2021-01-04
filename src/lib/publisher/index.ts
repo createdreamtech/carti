@@ -1,4 +1,4 @@
-import { Bundle, } from "@createdreamtech/carti-lib";
+import { Bundle, } from "@createdreamtech/carti-core";
 import { CartiConfigStorage } from "../storage"
 export type PublishType = "s3" | "disk"
 

@@ -1,4 +1,4 @@
-import { Bundle } from "@createdreamtech/carti-lib"
+import { Bundle } from "@createdreamtech/carti-core"
 import inquirer, { ListQuestion } from "inquirer"
 export interface BundleRenderer {
     (b: Bundle): string

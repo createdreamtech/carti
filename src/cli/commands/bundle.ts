@@ -1,6 +1,6 @@
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
-import * as cartiLib from "@createdreamtech/carti-lib"
+import * as cartiLib from "@createdreamtech/carti-core"
 import path from "path";
 import process from "process"
 import { CID } from "multiformats"

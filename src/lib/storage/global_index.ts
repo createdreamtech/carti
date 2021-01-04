@@ -1,4 +1,4 @@
-import {Bundle} from "@createdreamtech/carti-lib"
+import {Bundle} from "@createdreamtech/carti-core"
 import {Listing} from './bundle_listing'
 
 interface Index {

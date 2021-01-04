@@ -4,10 +4,10 @@ import { CartiConfigStorage } from "../storage"
 import { CartiBundleStorage } from "../storage/carti_bundles"
 import { Repo } from "../repo"
 import { fetcher } from "../fetcher";
-import { pack, S3Provider } from "@createdreamtech/carti-lib"
+import { pack, S3Provider } from "@createdreamtech/carti-core"
 import { BundleManager } from "../bundle"
 import fs from "fs-extra";
-import { CartiPackage, PackageMachineConfig, Ram, Rom, FlashDrive } from "@createdreamtech/carti-lib/build/src/generated/machine_config_pkg_schema"
+import { CartiPackage, PackageMachineConfig, Ram, Rom, FlashDrive } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
 import ajv from "ajv"
 
 export interface Config {

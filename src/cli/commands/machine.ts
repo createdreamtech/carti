@@ -1,18 +1,24 @@
 import program, { commands } from "commander";
 import { makeLogger } from "../../lib/logging"
-import * as clib from "@createdreamtech/carti-lib"
-import { Bundle, Storage, bundle, DiskProvider, S3Provider, PackageEntryOptions, generateLuaConfig } from "@createdreamtech/carti-lib"
+import { machineConfigPackage } from "@createdreamtech/carti-core"
+import * as clib from "@createdreamtech/carti-core"
+import { Bundle, Storage, bundle, DiskProvider, S3Provider, PackageEntryOptions, generateLuaConfig, makeHttpFetcher } from "@createdreamtech/carti-core"
 import { Config, getMachineConfig, initMachineConfig, writeMachineConfig } from "../../lib/config"
 import inquirer, { Question } from "inquirer"
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
-import { install } from "@createdreamtech/carti-lib/build/src/packager/bundle";
+import { install } from "@createdreamtech/carti-core/build/src/packager/bundle";
 import * as utils from "../util"
 import os from "os"
+import https from "https"
 import fs from "fs-extra"
 import { spawn, spawnSync } from "child_process";
 import path from "path"
 import rimraf from "rimraf";
 import  {promisify} from 'util';
+import { bundleFetcher } from "../../lib/fetcher";
+import { Readable } from "stream";
+import { fromStreamToStr } from "../../lib/utils";
+import url from "url"
 const rmAll = promisify(rimraf)
 
 type addMachineCommandType = "ram" | "rom" | "flashdrive" | "raw";
@@ -75,6 +81,11 @@ export const addMachineCommand = (config: Config): program.Command => {
         .description("Init a stored machine from carti-machine-package.json it is destructive")
         .action(handleInit)
 
+
+    machineCommand.command("install <uri>")
+    .description("Install a cartesi machine, resolving bundles and building a stored machine from a uri or file path specified cartesi-machine-package.json")
+    .action((uri)=>handleInstall(config,uri))
+
     return machineCommand
 }
 
@@ -88,6 +99,42 @@ async function handleInit(){
    return initMachineConfig()
 }
 
+async function getPackageFile(uri: string): Promise<Readable> {
+    if(url.parse(uri).protocol=== null)
+        return fs.createReadStream(path.resolve(uri))
+
+    return new Promise((resolve) => {
+        https.get(uri, (message) => {
+            resolve(message)
+        })
+    })
+}
+
+
+async function handleInstall(config: Config, uri: string): Promise<void> {
+    //TODO add error handling here
+    const packageConfig:machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
+    //check packages can all be resolved
+
+    packageConfig.assets.map(async (asset) =>config.globalConfigStorage.getById(asset.cid))
+    for (const asset  of packageConfig.assets){
+        const bundles = await config.globalConfigStorage.getById(asset.id)
+        if (bundles === [])
+            throw new Error(`Could not resolve bundle for id:${asset.id} name:${asset.name}`)
+        const exists = await config.bundleStorage.diskProvider.exists(asset.id)
+        if(exists)
+          break
+        await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), config.bundleStorage)
+    }
+    await buildMachine(config, packageConfig)
+    // fetch uri
+    // check all packages are resolveable
+    // check packages that are resolveable are installed 
+    // if not installed bundle install them
+    // then call build
+    // return execution command
+}
+
 async function handleAdd(config: Config, name: string, options: clib.PackageEntryOptions, addType: addMachineCommandType): Promise<void> {
     const bundles: Bundle[] = await config.localConfigStorage.get(name)
     const question = utils.pickBundle("Which bundle would you like to add to your cartesi machine build", bundles, renderBundle)
@@ -99,8 +146,11 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     await writeMachineConfig(cfg)
 }
 
-async function handleBuild(config: Config): Promise<void> {
-    const cfg = await getMachineConfig()
+async function handleBuild(config: Config): Promise<void>{
+    return buildMachine(config, await getMachineConfig())
+}
+
+async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage): Promise<void> {
     //const tmpDir = await fs.mkdtemp(`${os.tmpdir()}/carti_build_package`)
     const tmpDir = path.resolve(await fs.mkdtemp(`carti_build_package`))
     console.log(cfg)
@@ -140,10 +190,11 @@ async function runPackageBuild(packageDir: string) {
     }
     console.log(result.stdout.toString())
     const storedMachinePath = `${packageDir}/cartesi-machine`
-    if(fs.existsSync(`${process.cwd()}/cartesi-machine`))
-        await rmAll(`${process.cwd()}/cartesi-machine`)
+    if(fs.existsSync(`${process.cwd()}/stored_machine`))
+        await rmAll(`${process.cwd()}/stored_machine`)
 
-    await fs.move(storedMachinePath,`${process.cwd()}/cartesi-machine`)
+    //NOTE just renaming to keep path's consistent
+    await fs.move(storedMachinePath,`${process.cwd()}/stored_machine`)
     await rmAll(storedMachinePath)
     const loadMachineCommand = `docker run -e USER=$(id -u -n) -e UID=$(id -u) -e GID=$(id -g) \\
 -v $(pwd)/cartesi-machine:/opt/cartesi-machine \\

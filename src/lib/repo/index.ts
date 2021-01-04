@@ -1,14 +1,14 @@
-import { Bundle } from "@createdreamtech/carti-lib";
+import { Bundle } from "@createdreamtech/carti-core";
 import {CartiConfigStorage} from "../storage"
 import url from "url"
 import { Readable } from "stream";
 import { Fetcher } from "../fetcher";
-import { parseBundlesFile } from "@createdreamtech/carti-lib"
+import { parseBundlesFile } from "@createdreamtech/carti-core"
 import {makeLogger} from "../logging"
 import * as utils from "../utils"
 const logger = makeLogger("Repo")
 
-const BUNDLES_NAME=".bundles.json"
+const BUNDLES_NAME="bundles.json"
 export class Repo {
 
     cgs: CartiConfigStorage 
@@ -26,6 +26,7 @@ export class Repo {
         //TODO remove hardcoded reference
        // const bundles:Bundle[] = 
         const bundles = await this.resolveBundles(path)
+        console.log("resolving bundles", bundles)
         return this.cgs.add(path,bundles)
     }
 

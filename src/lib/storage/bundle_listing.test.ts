@@ -2,7 +2,7 @@ import {BundleListing } from "./bundle_listing";
 import fs from "fs-extra";
 import path from "path";
 import os from "os";
-import { Bundle } from "@createdreamtech/carti-lib";
+import { Bundle } from "@createdreamtech/carti-core";
 import _ from "lodash"
 import {expect} from "chai"
 describe("global listing ~/.carti.json", ()=>{

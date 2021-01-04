@@ -1,4 +1,4 @@
-import type {Bundle} from "@createdreamtech/carti-lib"
+import type {Bundle} from "@createdreamtech/carti-core"
 import fs, { writeJSON } from 'fs-extra'
 import { makeLogger } from "../logging";
 import { Config } from "../config"

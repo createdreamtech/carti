@@ -1,4 +1,4 @@
-import * as cartiLib from "@createdreamtech/carti-lib"
+import * as cartiLib from "@createdreamtech/carti-core"
 import { CID } from "multiformats";
 export class CartiBundleStorage extends cartiLib.Storage {
 

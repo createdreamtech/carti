@@ -1,4 +1,4 @@
-import { Bundle, BundleConfig, parseBundlesFile, writeBundlesFile } from "@createdreamtech/carti-lib"
+import { Bundle, BundleConfig, parseBundlesFile, writeBundlesFile } from "@createdreamtech/carti-core"
 import fs from "fs-extra"
 import { loggers } from "winston";
 export class BundleManager {

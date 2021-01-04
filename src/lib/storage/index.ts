@@ -1,7 +1,7 @@
 import fs from "fs-extra"
 import { BundleListing } from "./bundle_listing";
 import { GlobalIndex } from "./global_index";
-import { Bundle } from "@createdreamtech/carti-lib";
+import { Bundle } from "@createdreamtech/carti-core";
 
 /* CartiGlobalStorage provides storage for ~/.carti/
 includes master indices for resolving packages and updating package entries
@@ -32,7 +32,7 @@ export class CartiConfigStorage {
 
     async getById(id: string): Promise<Array<Bundle>> {
         await this.setIndex()
-        return this.globalIndex.getPackageByName(name)
+        return this.globalIndex.getPackageById(id)
     }
 
     async add(path:string, bundles: Bundle[]){

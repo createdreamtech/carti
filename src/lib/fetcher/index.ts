@@ -3,8 +3,8 @@ import url from "url"
 import { gitFetcher, defaultGitFetcher } from "./git"
 import { diskFetcher } from "./disk"
 export {Fetcher} from "./fetcher"
-import {DiskProvider, Storage} from "@createdreamtech/carti-lib"
-import {Fetcher, makeHttpFetcher} from "@createdreamtech/carti-lib"
+import {DiskProvider, Storage} from "@createdreamtech/carti-core"
+import {Fetcher, makeHttpFetcher} from "@createdreamtech/carti-core"
 
 export async function fetcher(uri: string , fileName: string): Promise<Readable>{
     const urlParts = url.parse(uri)
@@ -20,4 +20,5 @@ export function bundleFetcher(uri: string): Fetcher {
         return new Storage(new DiskProvider(uri));
     return makeHttpFetcher(uri)
 }
+
 

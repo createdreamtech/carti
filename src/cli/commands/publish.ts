@@ -1,7 +1,7 @@
 import program, { commands } from "commander";
 import { makeLogger } from "../../lib/logging"
-import * as clib  from "@createdreamtech/carti-lib"
-import { Bundle, Storage, bundle,  DiskProvider, S3Provider } from "@createdreamtech/carti-lib"
+import * as clib  from "@createdreamtech/carti-core"
+import { Bundle, Storage, bundle,  DiskProvider, S3Provider } from "@createdreamtech/carti-core"
 import {Config} from "../../lib/config"
 import inquirer, {Question} from "inquirer"
 import * as utils from "../util"

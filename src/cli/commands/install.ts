@@ -1,10 +1,10 @@
-import { Bundle, makeHttpFetcher } from "@createdreamtech/carti-lib";
+import { Bundle, makeHttpFetcher } from "@createdreamtech/carti-core";
 import program from "commander";
 import { parseShortDesc, shortDesc } from "../../lib/bundle";
 import { Config } from "../../lib/config";
 import inquirer from "inquirer";
 import * as utils from "../util";
-import { bundle } from "@createdreamtech/carti-lib";
+import { bundle } from "@createdreamtech/carti-core";
 import { bundleFetcher } from "../../lib/fetcher";
 
 interface InstallCommand {
