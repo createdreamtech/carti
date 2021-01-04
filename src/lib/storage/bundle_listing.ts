@@ -1,13 +1,12 @@
-import type {Bundle} from "@createdreamtech/carti-core"
-import fs, { writeJSON } from 'fs-extra'
+import type { Bundle } from "@createdreamtech/carti-core"
+import fs from 'fs-extra'
 import { makeLogger } from "../logging";
-import { Config } from "../config"
 
-export const GLOBAL_PACKAGE_LISTING=".carti_bundles.json";
+export const GLOBAL_PACKAGE_LISTING = ".carti_bundles.json";
 const defaultPackage = {};
 const logger = makeLogger("GlobalListing")
 export interface Listing {
-  [key:string]: Bundle[]
+    [key: string]: Bundle[]
 }
 /*
     GlobalListing is the representaiton of the package location data retrieved from various package
@@ -17,29 +16,29 @@ export interface Listing {
 
 export class BundleListing {
 
-    dir:string
+    dir: string
     packageListingPath: string
-    constructor(dir:string,fileName: string){
+    constructor(dir: string, fileName: string) {
         this.dir = dir
         this.packageListingPath = `${dir}/${GLOBAL_PACKAGE_LISTING}`;
         //TODO check that the listing file itself is correct
-        fs.ensureDirSync(dir) 
-        if(fs.existsSync(this.packageListingPath) === false){
+        fs.ensureDirSync(dir)
+        if (fs.existsSync(this.packageListingPath) === false) {
             fs.writeJSONSync(this.packageListingPath, defaultPackage)
-        }    
+        }
     }
     // used to add package listings from a particular origin
-    async add(path:string, bundle: Bundle[]){
-        const listing:Listing = await fs.readJSON(this.packageListingPath)
+    async add(path: string, bundle: Bundle[]) {
+        const listing: Listing = await fs.readJSON(this.packageListingPath)
         listing[path] = bundle
-        return fs.writeFile(this.packageListingPath,JSON.stringify(listing,null,2))
+        return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
     }
 
     // used to rm package listings from a particular origin
     async rm(path: string) {
-        const listing:Listing = await fs.readJSON(this.packageListingPath)
+        const listing: Listing = await fs.readJSON(this.packageListingPath)
         delete listing[path]
-        return fs.writeFile(this.packageListingPath, JSON.stringify(listing,null,2))
+        return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
     }
 
     async getListing(): Promise<Listing> {

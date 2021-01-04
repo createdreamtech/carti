@@ -1,8 +1,8 @@
-import {Bundle} from "@createdreamtech/carti-core"
-import {Listing} from './bundle_listing'
+import { Bundle } from "@createdreamtech/carti-core"
+import { Listing } from './bundle_listing'
 
 interface Index {
-    [k:string]: Bundle[]
+    [k: string]: Bundle[]
 }
 
 interface Indices {
@@ -17,29 +17,29 @@ export class GlobalIndex {
         name: {} as Index,
         id: {} as Index
     }
-    getList: ()=>Promise<Listing>
-    constructor(list:()=>Promise<Listing>){
+    getList: () => Promise<Listing>
+    constructor(list: () => Promise<Listing>) {
         this.getList = list
     }
 
     //TODO quite a bit inefficient 
-    async updateIndex(){
+    async updateIndex() {
         const list = await this.getList()
         this.buildIndex(list)
     }
 
 
-    async getPackageByName(name: string): Promise<Array<Bundle>>{
+    async getPackageByName(name: string): Promise<Array<Bundle>> {
         return this.get("name", name)
     }
 
-    async getPackageById(id: string): Promise<Array<Bundle>>{
+    async getPackageById(id: string): Promise<Array<Bundle>> {
         return this.get("id", name)
     }
 
-    
-    private buildIndex(list: Listing){
-        Object.keys(this.indices).forEach((field)=>{
+
+    private buildIndex(list: Listing) {
+        Object.keys(this.indices).forEach((field) => {
             Object.keys(list).forEach((k) => {
                 const value = list[k]
                 value.forEach((b) => {
@@ -51,18 +51,9 @@ export class GlobalIndex {
         })
 
     }
-    private async get(field:IndexType, value:string){
-        if(this.indices[field].hasOwnProperty(value))
+    private async get(field: IndexType, value: string) {
+        if (this.indices[field].hasOwnProperty(value))
             return this.indices[field][value];
         return []
     }
 }
-
-/*
-const globalListing = new GlobalListing("~/.carti")
- 
-  new GlobalListing()
-  new GlobalIndex(() => globalListing.getListing())
-  CartiGlobalStorage(new GlobalListing , new globalIndex)
-
-*/

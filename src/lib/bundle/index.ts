@@ -1,17 +1,17 @@
-export {BundleManager} from "./bundle_manager"
+export { BundleManager } from "./bundle_manager"
 //TODO fix typing here should be of type BundleType
 interface ShortBundle {
     id: string,
     name: string,
-    version:string,
+    version: string,
     uri?: string,
     bundleType: string
 }
 export function shortDesc(b: ShortBundle) {
-   return `@${b.bundleType}/${b.name}:${b.version}:${b.id}:${b.uri}`
+    return `@${b.bundleType}/${b.name}:${b.version}:${b.id}:${b.uri}`
 }
 
-export function parseShortDesc(shortDesc:string): ShortBundle {
+export function parseShortDesc(shortDesc: string): ShortBundle {
     const entries = shortDesc.split(":")
     let [bundleType, name] = entries[0].split("/")
     bundleType = bundleType.substring(1)

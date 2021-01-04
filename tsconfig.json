@@ -12,6 +12,6 @@
     "outDir": "./build",
     "strict": true,
     "esModuleInterop": true,
-    "skipLibCheck":true
+    "skipLibCheck":true,
   }
 }

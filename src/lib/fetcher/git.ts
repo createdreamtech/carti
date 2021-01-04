@@ -10,12 +10,12 @@ export function gitFetcher(): Fetcher {
         if (urlParts.path === null)
             throw Error(`could not fetch path ${path}`)
 
-        let [,owner, repo] = urlParts.path.split("/")
+        let [, owner, repo] = urlParts.path.split("/")
 
         console.log(`${urlParts.protocol}${urlParts.hostname}`)
         // TODO add support for alternate git urls
         const result = await octokit.repos.getContent({
-       //     baseUrl: `${urlParts.protocol}//${urlParts.hostname!}`,
+            //     baseUrl: `${urlParts.protocol}//${urlParts.hostname!}`,
             owner,
             repo,
             path
@@ -25,7 +25,7 @@ export function gitFetcher(): Fetcher {
         //@ts-ignore
         const content = result.data.content
         const decodedContent = Buffer.from(content, 'base64');
-        const str = new Readable(); 
+        const str = new Readable();
         str.push(decodedContent)
         str.push(null)
         return str

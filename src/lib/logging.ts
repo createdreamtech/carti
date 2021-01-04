@@ -58,7 +58,7 @@ export const makeLogger = (context: string, path: string = "/") => {
     transports: new winston.transports.Stream({
       stream: logStream,
     }),
-    defaultMeta: {context, path },
+    defaultMeta: { context, path },
     exitOnError: false,
   });
 };

@@ -1,9 +1,9 @@
 import { Bundle } from "@createdreamtech/carti-core"
-import inquirer, { ListQuestion } from "inquirer"
+import { ListQuestion } from "inquirer"
 export interface BundleRenderer {
     (b: Bundle): string
 }
-export const defaultBundleRenderer = (b: Bundle)=>{
+export const defaultBundleRenderer = (b: Bundle) => {
     return `${b.name} type:${b.bundleType} version:${b.version} uri:${b.uri}`
 }
 export function pickBundle(message: string, bundles: Array<Bundle>, renderer: BundleRenderer): ListQuestion {

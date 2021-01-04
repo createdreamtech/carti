@@ -1,4 +1,4 @@
-import { Bundle, makeHttpFetcher } from "@createdreamtech/carti-core";
+import { Bundle } from "@createdreamtech/carti-core";
 import program from "commander";
 import { parseShortDesc, shortDesc } from "../../lib/bundle";
 import { Config } from "../../lib/config";
@@ -7,9 +7,6 @@ import * as utils from "../util";
 import { bundle } from "@createdreamtech/carti-core";
 import { bundleFetcher } from "../../lib/fetcher";
 
-interface InstallCommand {
-    name: string
-}
 export const addInstallCommand = (config: Config): program.Command => {
    return program
    .command("install <name>") 
