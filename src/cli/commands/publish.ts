@@ -1,7 +1,7 @@
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
 import * as clib from "@createdreamtech/carti-core"
-import { Bundle, Storage, bundle, DiskProvider, S3Provider } from "@createdreamtech/carti-core"
+import { Bundle, Storage, bundle, DiskProvider, S3Provider, MemoryProvider } from "@createdreamtech/carti-core"
 import { Config } from "../../lib/config"
 import inquirer from "inquirer"
 import * as utils from "../util"
@@ -13,7 +13,7 @@ const logger = makeLogger("Publish Command")
 export const publishCommand = (handler: (c: any) => Promise<void>): program.Command => {
     return program
         .command("publish")
-        .option("-t, --type", "type s3| (disk for development purposes) for publishing package data")
+        .option("-t, --type", "type s3|disk|uri (disk for development purposes) for publishing package data")
         .description("Publish local package pushing data to storage allocation")
         .action(handler)
 }
@@ -21,7 +21,7 @@ export const addPublishCommand = (config: Config): program.Command => {
     const publishCommand = new program.Command("publish")
         .description("Publish carti bundle to permanent storage")
     publishCommand.command("s3 <bundle> <bucket> <uri>")
-        .description("add bundle to s3 listing repo bundle ")
+        .description("add bundle to s3 adds to bundles.json")
         .usage("s3 bundleName bucketName publicURI")
         .option("--nosave", "don't add to bundles.json")
         .requiredOption("--bucket", "Name of the s3 bucket to upload to")
@@ -29,11 +29,17 @@ export const addPublishCommand = (config: Config): program.Command => {
             handlePublish(config, bundle, new Storage(new S3Provider(bucket)), uri)
         })
     publishCommand.command("disk <src> <path>")
-        .description("Publish file to disk storage for testing")
+        .description("Publish file to disk storage for testing add to bundles.json")
         .option("--nosave", "don't add to bundles.json")
         .action((src, pth, options) => {
             const absPath = path.resolve(pth)
             handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath)
+        })
+    publishCommand.command("uri <bundle> <uri>")
+        .description("Just takes a bundle name and uri and writes to bundles.json w/o uploading")
+        .option("--nosave", "don't add to bundles.json")
+        .action((bundle, uri, options) => {
+            handlePublish(config, bundle, new Storage(new MemoryProvider()), uri)
         })
     return publishCommand
 }
