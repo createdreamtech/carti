@@ -34,7 +34,7 @@ export class GlobalIndex {
     }
 
     async getPackageById(id: string): Promise<Array<Bundle>> {
-        return this.get("id", name)
+        return this.get("id", id)
     }
 
 
