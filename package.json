@@ -1,7 +1,7 @@
 {
   "name": "@createdreamtech/carti",
   "version": "0.0.0-development",
-  "description": "",
+  "description": "A cartesi machine package manager",
   "main": "build/src/cli/index.js",
   "publishConfig": {
     "access": "public"
@@ -11,8 +11,6 @@
     "generate:types": "node utils/generate_types.js",
     "lint": "eslint -c .eslintrc.js --ext .ts",
     "test": "npm run lint && jest --coverage",
-    "test:mocha": "npx mocha build/src/**",
-    "test:m": "mocha"
   },
   "bin": {
     "carti": "build/src/cli/index.js"
