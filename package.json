@@ -10,7 +10,7 @@
     "build": "tsc && mkdir -p build/src/scripts/ && cp src/scripts/run-config.lua build/src/scripts/run-config.lua",
     "generate:types": "node utils/generate_types.js",
     "lint": "eslint -c .eslintrc.js --ext .ts",
-    "test": "npm run lint && jest --coverage",
+    "test": "npm run lint && jest --coverage"
   },
   "bin": {
     "carti": "build/src/cli/index.js"
