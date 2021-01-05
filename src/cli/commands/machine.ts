@@ -81,8 +81,9 @@ export const addMachineCommand = (config: Config): program.Command => {
 
 
     machineCommand.command("install <uri>")
-        .description("Install a cartesi machine, resolving bundles and building a stored machine from a uri or file path specified carti-machine-package.json")
-        .action(async (uri) => handleInstall(config, uri))
+        .description("Install a cartesi machine, installing bundles and optionally building a stored machine from a uri or file path specified carti-machine-package.json")
+        .option("--nobuild", "install remote machine bundles but do not build stored machine")
+        .action(async (uri,options) => handleInstall(config, uri,options.nobuild))
 
     return machineCommand
 }
@@ -109,7 +110,7 @@ async function getPackageFile(uri: string): Promise<Readable> {
 }
 
 
-async function handleInstall(config: Config, uri: string): Promise<void> {
+async function handleInstall(config: Config, uri: string, nobuild:boolean): Promise<void> {
     //TODO add error handling here
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
     //check packages can all be resolved
@@ -125,6 +126,9 @@ async function handleInstall(config: Config, uri: string): Promise<void> {
         const path = await config.bundleStorage.path(CID.parse(bundles[0].id))
         await config.localConfigStorage.add(path, [bundles[0]])
     }
+    if(nobuild)
+        return 
+
     return buildMachine(config, packageConfig)
 }
 
