@@ -10,28 +10,21 @@ import { shortDesc, parseShortDesc } from "../../lib/bundle";
 
 const logger = makeLogger("Publish Command")
 
-export const publishCommand = (handler: (c: any) => Promise<void>): program.Command => {
-    return program
-        .command("publish")
-        .option("-t, --type", "type s3|disk|uri (disk for development purposes) for publishing package data")
-        .description("Publish local package pushing data to storage allocation")
-        .action(handler)
-}
 export const addPublishCommand = (config: Config): program.Command => {
     const publishCommand = program.command("publish")
         .description("Publish carti bundle to permanent storage")
-    publishCommand.command("s3 <bundle> <bucket> <uri>")
+    publishCommand.command("s3 <bundleName> <uri>")
         .description("add bundle to s3 adds to bundles.json")
-        .usage("s3 bundleName bucketName publicURI")
-        .option("--nosave", "don't add to bundles.json")
-        .requiredOption("--bucket", "Name of the s3 bucket to upload to")
-        .action(async (bundle, bucket, uri, options) => {
-            await handlePublish(config, bundle, new Storage(new S3Provider(bucket)), uri, options.nosave)
-            console.log(`published to s3:${bucket}`)
+        .usage("s3 --bucket <bucket> bundleName publicURI")
+        .option("--nosave", "don't upload to s3")
+        .requiredOption("--bucket <bucket>", "Name of the s3 bucket to upload to")
+        .action(async (bundleName, uri, options) => {
+            await handlePublish(config, bundleName, new Storage(new S3Provider(options.bucket)), uri, options.nosave)
+            console.log(`published to s3:${options.bucket}`)
         })
     publishCommand.command("disk <src> <path>")
         .description("Publish file to disk storage for testing add to bundles.json")
-        .option("--nosave", "don't add to bundles.json")
+        .option("--nosave", "don't add to disk")
         .action(async (src, pth, options) => {
             const absPath = path.resolve(pth)
             await handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath, options.nosave)
@@ -58,13 +51,12 @@ async function handlePublish(config: Config, name: string, storage: Storage, uri
     const answer = await inquirer.prompt([question])
     const { id } = parseShortDesc(answer.bundle)
     const bundle = bundles.filter((b) => b.id === id)[0]
-    const uploadBundle = Object.assign({}, bundle, { path: bundle.uri as string, uri })
-    if (!uri)
-        delete uploadBundle.uri
-    if(!nosave){
-        return config.bundleListingManager.addBundle(uploadBundle)
+    const bundleWithNewUri = uri ? Object.assign({}, bundle) : Object.assign({}, bundle, { uri })
+    if(nosave){
+        return config.bundleListingManager.addBundle(bundleWithNewUri)
     }
-    const bun = await clib.bundle.bundle(uploadBundle as bundle.BundleMeta, storage)
+    const bundleWithPath = Object.assign({}, bundleWithNewUri, { path: bundle.uri as string})
+    const bun = await clib.bundle.bundle(bundleWithPath as bundle.BundleMeta, storage)
     bun.uri = uri
     return config.bundleListingManager.addBundle(bun)
 }

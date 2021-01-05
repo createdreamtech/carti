@@ -11,7 +11,7 @@ import { CID } from "multiformats";
 export const addInstallCommand = (config: Config): program.Command => {
    return program
    .command("install <name>") 
-   .description("Install package locally")
+   .description("Install a bundle locally")
    .action(async (name)=>{
        return handleInstall(config,name)
    })
