@@ -15,7 +15,7 @@ export interface Config {
     bundleListingManager: BundleManager
     repo: Repo
 }
-const cartesiMachinePath = `${process.cwd()}/cartesi-machine-package.json`
+const cartesiMachinePath = `${process.cwd()}/carti-machine-package.json`
 const bundlesPath = `${process.cwd()}/carti_bundles`
 const bundleListingFilename = ".carti_bundles.json"
 const globalBundleListingPath = `${os.homedir()}/.carti`
@@ -56,7 +56,8 @@ const defaultFlash: FlashDrive = [
 ]
 export async function initMachineConfig(): Promise<void> {
     const packageCfg = { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom }, version: "0.0.0-development", }
-    if (fs.existsSync(cartesiMachinePath)) {
+    const exists = await fs.pathExists(cartesiMachinePath)
+    if (exists) {
         console.warn("Machine has already been init")
         return
     }

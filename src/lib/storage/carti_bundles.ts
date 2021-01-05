@@ -9,7 +9,7 @@ export class CartiBundleStorage extends cartiLib.Storage {
         this.diskProvider = diskProvider
     }
 
-    path(cid: CID): string {
+    async path(cid: CID): Promise<string> {
         return this.diskProvider.path(cid)
     }
 }
