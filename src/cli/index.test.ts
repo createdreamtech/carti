@@ -41,7 +41,7 @@ const setup = (env: testUtil.TestEnv) => {
     spawnSync("npm", ["pack"])
     const cartiNodePackage = `createdreamtech-carti-${version}.tgz`
     fs.copyFileSync(`${process.cwd()}/${cartiNodePackage}`, `${env.cwd}/${cartiNodePackage}`)
-    fs.copyFileSync(`${process.cwd()}/fixtures/dapp-test-data.ext2`, `${env.cwd}/dapp-test-data.ext2`)
+    fs.copyFileSync(`${__dirname}/../fixtures/dapp-test-data.ext2`, `${env.cwd}/dapp-test-data.ext2`)
     //npm is special and messes with the env
     spawnSync("npm", ["init", "-y"], { cwd: env.cwd })
 
