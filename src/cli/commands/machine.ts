@@ -40,7 +40,6 @@ export const addMachineCommand = (config: Config): program.Command => {
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 
-
     machineAddCommand.command("ram <bundle>")
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
@@ -117,12 +116,14 @@ async function handleInstall(config: Config, uri: string): Promise<void> {
 
     for (const asset of packageConfig.assets) {
         const bundles = await config.globalConfigStorage.getById(asset.cid)
-        if (bundles === [])
+        if (bundles === [] || bundles === undefined)
             throw new Error(`Could not resolve bundle for id:${asset.cid} name:${asset.name} try adding the repo`)
         const exists = await config.bundleStorage.diskProvider.exists(CID.parse(asset.cid))
         if (exists)
             break
         await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), config.bundleStorage)
+        const path = await config.bundleStorage.path(CID.parse(bundles[0].id))
+        await config.localConfigStorage.add(path, [bundles[0]])
     }
     return buildMachine(config, packageConfig)
 }
