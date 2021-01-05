@@ -10,7 +10,7 @@ export const addRepoCommand = (repo: Repo): program.Command => {
       .description("Manage carti package listing repo")
    repoCommand.command("add <src>")
       .description("add package listing repo")
-      .action((src) => {
+      .action(async (src) => {
          if (!src) {
             throw new Error("could not add missing listing")
          }
@@ -21,6 +21,6 @@ export const addRepoCommand = (repo: Repo): program.Command => {
       .action((src) => repo.update(path.resolve(src)))
    repoCommand.command("rm <src>")
       .description("remove")
-      .action((src) => repo.rm(path.resolve(src)))
+      .action(async (src) => repo.rm(path.resolve(src)))
    return repoCommand
 }
