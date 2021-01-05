@@ -35,8 +35,8 @@ export const addMachineCommand = (config: Config): program.Command => {
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 
-    const machineAddCommand = program.command("add")
-        .description("add bundle to cartesi machine description using ram | rom | flashdrive | raw options")
+    const machineAddCommand = new program.Command("add")
+        .description("Add bundle to cartesi machine description using ram | rom | flashdrive | raw options")
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 
