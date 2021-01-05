@@ -18,6 +18,7 @@ import { bundleFetcher } from "../../lib/fetcher";
 import { Readable } from "stream";
 import { fromStreamToStr } from "../../lib/utils";
 import url from "url"
+import { CID } from "multiformats";
 const rmAll = promisify(rimraf)
 
 type addMachineCommandType = "ram" | "rom" | "flashdrive" | "raw";
@@ -72,17 +73,16 @@ export const addMachineCommand = (config: Config): program.Command => {
     machineCommand.command("build")
         .description("Build a stored machine from carti-machine-package.json")
         .action(() => {
-            handleBuild(config)
+            return handleBuild(config)
         })
 
-    machineCommand.addCommand(machineAddCommand)
     machineCommand.command("init")
         .description("Init a stored machine from carti-machine-package.json it is destructive")
-        .action(handleInit)
+        .action(async () => handleInit())
 
 
     machineCommand.command("install <uri>")
-        .description("Install a cartesi machine, resolving bundles and building a stored machine from a uri or file path specified cartesi-machine-package.json")
+        .description("Install a cartesi machine, resolving bundles and building a stored machine from a uri or file path specified carti-machine-package.json")
         .action((uri) => handleInstall(config, uri))
 
     return machineCommand
@@ -115,23 +115,16 @@ async function handleInstall(config: Config, uri: string): Promise<void> {
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
     //check packages can all be resolved
 
-    packageConfig.assets.map(async (asset) => config.globalConfigStorage.getById(asset.cid))
     for (const asset of packageConfig.assets) {
-        const bundles = await config.globalConfigStorage.getById(asset.id)
+        const bundles = await config.globalConfigStorage.getById(asset.cid)
         if (bundles === [])
-            throw new Error(`Could not resolve bundle for id:${asset.id} name:${asset.name}`)
-        const exists = await config.bundleStorage.diskProvider.exists(asset.id)
+            throw new Error(`Could not resolve bundle for id:${asset.cid} name:${asset.name} try adding the repo`)
+        const exists = await config.bundleStorage.diskProvider.exists(CID.parse(asset.cid))
         if (exists)
             break
         await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), config.bundleStorage)
     }
-    await buildMachine(config, packageConfig)
-    // fetch uri
-    // check all packages are resolveable
-    // check packages that are resolveable are installed 
-    // if not installed bundle install them
-    // then call build
-    // return execution command
+    return buildMachine(config, packageConfig)
 }
 
 async function handleAdd(config: Config, name: string, options: clib.PackageEntryOptions, addType: addMachineCommandType): Promise<void> {
@@ -141,9 +134,8 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     const { id } = parseShortDesc(answer.bundle)
     const bundle = bundles.filter((b) => b.id === id)[0]
     let cfg = await getMachineConfig()
-    console.log(options)
     cfg = clib.updatePackageEntry(bundle, cfg, options)
-    await writeMachineConfig(cfg)
+    return writeMachineConfig(cfg)
 }
 
 async function handleBuild(config: Config): Promise<void> {
@@ -153,21 +145,18 @@ async function handleBuild(config: Config): Promise<void> {
 async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage): Promise<void> {
     //const tmpDir = await fs.mkdtemp(`${os.tmpdir()}/carti_build_package`)
     const tmpDir = path.resolve(await fs.mkdtemp(`carti_build_package`))
-    console.log(cfg)
     const machineConfig = await clib.install(cfg, config.bundleStorage, tmpDir)
-    console.log(machineConfig)
     const luaConfig = generateLuaConfig(machineConfig, "return")
     await fs.writeFile(`${tmpDir}/machine-config.lua`, luaConfig)
     await fs.copyFile(`${__dirname}/../../scripts/run-config.lua`, `${tmpDir}/run-config.lua`)
     await runPackageBuild(tmpDir)
     //clean up
-    await rmAll(tmpDir)
+    return rmAll(tmpDir)
 }
 
 
 async function runPackageBuild(packageDir: string) {
     const { uid, gid, username } = os.userInfo()
-    console.log(packageDir)
     const command = ["run",
         "-e",
         `USER=${username}`,
@@ -176,12 +165,13 @@ async function runPackageBuild(packageDir: string) {
         "-e",
         `GID=${gid}`,
         "-v",
-        `${packageDir}:/opt/cartesi/packages`,
+        `${packageDir}:/opt/carti/packages`,
         "cartesi/playground:0.1.1",
         "/bin/bash",
         "-c",
         //"cd /opt/cartesi/packages && echo $(ls -l)" ]
-        "cd /opt/cartesi/packages && luapp5.3 run-config.lua machine-config && echo 'package built'"]
+        "cd /opt/carti/packages && luapp5.3 run-config.lua machine-config && echo 'package built'"]
+    console.log("docker " + command.join(" "))
     //TODO improve should stream output to stdout
     const result = spawnSync("docker", command)
     if (result.error || result.stderr.toString()) {
