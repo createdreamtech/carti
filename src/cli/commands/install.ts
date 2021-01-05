@@ -6,6 +6,7 @@ import inquirer from "inquirer";
 import * as utils from "../util";
 import { bundle } from "@createdreamtech/carti-core";
 import { bundleFetcher } from "../../lib/fetcher";
+import { CID } from "multiformats";
 
 export const addInstallCommand = (config: Config): program.Command => {
    return program
@@ -28,4 +29,6 @@ async function handleInstall(config: Config, name:string): Promise<void> {
     const {id} = parseShortDesc(answer.bundle)
     const bun = bundles.filter((b) => b.id === id)[0]
     await bundle.install(bun,bundleFetcher(bun.uri as string), config.bundleStorage)
+    const path = await config.bundleStorage.path(CID.parse(bun.id))
+    config.localConfigStorage.add(path, [bun])
 }
