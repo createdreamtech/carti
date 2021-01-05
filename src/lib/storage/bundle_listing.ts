@@ -2,7 +2,7 @@ import type { Bundle } from "@createdreamtech/carti-core"
 import fs from 'fs-extra'
 import { makeLogger } from "../logging";
 
-export const GLOBAL_PACKAGE_LISTING = ".carti_bundles.json";
+export const GLOBAL_PACKAGE_LISTING = ".bundles_index.json";
 const defaultPackage = {};
 const logger = makeLogger("GlobalListing")
 export interface Listing {

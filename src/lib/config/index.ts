@@ -17,7 +17,7 @@ export interface Config {
 }
 const cartesiMachinePath = `${process.cwd()}/carti-machine-package.json`
 const bundlesPath = `${process.cwd()}/carti_bundles`
-const bundleListingFilename = ".carti_bundles.json"
+const bundleListingFilename = ".bundles_index.json"
 const globalBundleListingPath = `${os.homedir()}/.carti`
 const localBundleListingPath = `${bundlesPath}/.carti`
 const bundlesJsonPath = `${process.cwd()}`
