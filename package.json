@@ -8,8 +8,8 @@
   },
   "scripts": {
     "build": "tsc && npm run copy:f && npm run copy:l",
-    "copy:f":"mkdir -p build/src/fixtures && cp -r src/fixtures/* build/src/fixtures",
-    "copy:l":"mkdir -p build/src/scripts/ && cp src/scripts/run-config.lua build/src/scripts/run-config.lua",
+    "copy:f": "mkdir -p build/src/fixtures && cp -r src/fixtures/* build/src/fixtures",
+    "copy:l": "mkdir -p build/src/scripts/ && cp src/scripts/run-config.lua build/src/scripts/run-config.lua",
     "generate:types": "node utils/generate_types.js",
     "lint": "eslint -c .eslintrc.js --ext .ts",
     "test:c": "npm run lint && jest --coverage",
@@ -54,6 +54,7 @@
     "@types/winston": "^2.4.4",
     "ajv": "^6.12.6",
     "aws-sdk": "^2.799.0",
+    "chalk": "^4.1.0",
     "commander": "^6.2.0",
     "fs-extra": "^9.0.1",
     "inquirer": "^7.3.3",
