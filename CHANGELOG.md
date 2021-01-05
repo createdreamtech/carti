@@ -1,3 +1,15 @@
+# [1.2.0](https://github.com/createdreamtech/carti/compare/1.1.0...1.2.0) (2021-01-05)
+
+
+### Bug Fixes
+
+* machine install command to also store local data when install remote pkg ([f6bd69a](https://github.com/createdreamtech/carti/commit/f6bd69a25469f501e90e8807be4177ca8a9f75ac))
+
+
+### Features
+
+* add nobuild support for install command ([450eec1](https://github.com/createdreamtech/carti/commit/450eec17c6f5328520b46b1811bc8d6fa1885e79))
+
 # [1.1.0](https://github.com/createdreamtech/carti/compare/1.0.0...1.1.0) (2021-01-05)
 
 
