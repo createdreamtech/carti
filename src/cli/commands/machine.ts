@@ -40,7 +40,6 @@ export const addMachineCommand = (config: Config): program.Command => {
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 
-
     machineAddCommand.command("ram <bundle>")
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
@@ -82,8 +81,9 @@ export const addMachineCommand = (config: Config): program.Command => {
 
 
     machineCommand.command("install <uri>")
-        .description("Install a cartesi machine, resolving bundles and building a stored machine from a uri or file path specified carti-machine-package.json")
-        .action(async (uri) => handleInstall(config, uri))
+        .description("Install a cartesi machine, installing bundles and optionally building a stored machine from a uri or file path specified carti-machine-package.json")
+        .option("--nobuild", "install remote machine bundles but do not build stored machine")
+        .action(async (uri,options) => handleInstall(config, uri,options.nobuild))
 
     return machineCommand
 }
@@ -110,20 +110,25 @@ async function getPackageFile(uri: string): Promise<Readable> {
 }
 
 
-async function handleInstall(config: Config, uri: string): Promise<void> {
+async function handleInstall(config: Config, uri: string, nobuild:boolean): Promise<void> {
     //TODO add error handling here
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
     //check packages can all be resolved
 
     for (const asset of packageConfig.assets) {
         const bundles = await config.globalConfigStorage.getById(asset.cid)
-        if (bundles === [])
+        if (bundles === [] || bundles === undefined)
             throw new Error(`Could not resolve bundle for id:${asset.cid} name:${asset.name} try adding the repo`)
         const exists = await config.bundleStorage.diskProvider.exists(CID.parse(asset.cid))
         if (exists)
             break
         await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), config.bundleStorage)
+        const path = await config.bundleStorage.path(CID.parse(bundles[0].id))
+        await config.localConfigStorage.add(path, [bundles[0]])
     }
+    if(nobuild)
+        return 
+
     return buildMachine(config, packageConfig)
 }
 
