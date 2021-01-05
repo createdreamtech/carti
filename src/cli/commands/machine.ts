@@ -44,21 +44,21 @@ export const addMachineCommand = (config: Config): program.Command => {
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
         .description("add a bundle to the ram entry for carti-machine-package.json")
-        .requiredOption("--length, -l <length>", "length of the drive in hex format ex. 0x4000")
-        .option("--resolvedpath, -r <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
+        .requiredOption("-l, --length <length>", "length of the drive in hex format ex. 0x4000")
+        .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
         .action(add("ram"))
 
     machineAddCommand.command("flash <bundle>")
-        .requiredOption("--length, -l <length>", "length of the drive in hex format ex. 0x4000000")
-        .requiredOption("--start, -s <start>", "start position of the drive in hex format ex. 0x800000")
-        .option("--resolvedpath, -r <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
+        .requiredOption("-l, --length <length>", "length of the drive in hex format ex. 0x4000000")
+        .requiredOption("-s, --start <start>", "start position of the drive in hex format ex. 0x800000")
+        .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
         .description("add a bundle to the flash entry for carti-machine-package.json")
         .action(add("flashdrive"))
 
     machineAddCommand.command("rom <bundle>")
         .description("add a bundle to the rom entry for carti-machine-package.json")
-        .option("--bootargs, -b <bootargs>", "boot arguments for the rom")
-        .option("--resolvedpath, -r <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
+        .option("-b, --bootargs <bootargs>", "boot arguments for the rom")
+        .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
         .action(add("rom"))
 
     /*
@@ -141,6 +141,7 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     const { id } = parseShortDesc(answer.bundle)
     const bundle = bundles.filter((b) => b.id === id)[0]
     let cfg = await getMachineConfig()
+    console.log(options)
     cfg = clib.updatePackageEntry(bundle, cfg, options)
     await writeMachineConfig(cfg)
 }
