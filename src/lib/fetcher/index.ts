@@ -10,7 +10,7 @@ import path from "path"
 export async function fetcher(uri: string, fileName: string): Promise<Readable> {
     const urlParts = url.parse(uri)
     if (urlParts.protocol === null)
-        return diskFetcher(uri, fileName)
+        return diskFetcher(path.resolve(uri), fileName)
     return defaultGitFetcher(uri, fileName)
 }
 //TODO conceptual shift from path specified content to specific instance content i.e.
