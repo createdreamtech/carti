@@ -1,3 +1,22 @@
+# [1.1.0](https://github.com/createdreamtech/carti/compare/1.0.0...1.1.0) (2021-01-05)
+
+
+### Bug Fixes
+
+* broken path resolution for git based repo ([065e9fd](https://github.com/createdreamtech/carti/commit/065e9fd79436fe3c62d309242dc9d395175ac722))
+* concurrency issues with test ([465d6cc](https://github.com/createdreamtech/carti/commit/465d6cce2e3909ae80a3b93018cf2f5e6000a8ba))
+* correct duplicate commands prompt ([1eac12a](https://github.com/createdreamtech/carti/commit/1eac12aa36786157350faa834c7ca30699b7e8a0))
+* issues parsing command args/handling publish nosave arg ([09ef5cc](https://github.com/createdreamtech/carti/commit/09ef5ccfb3156944d4147b7e91366e6e2c978fa8))
+* publish async handling ([78f2586](https://github.com/createdreamtech/carti/commit/78f25868e705fbd246433a8b07b88f794ed6ab9c))
+* refactor publish to not leak path information ([ddd3a9f](https://github.com/createdreamtech/carti/commit/ddd3a9f84a82b1e66ff8bba1787e280646b4d299))
+* rm duplicate publish command ([f3ef99b](https://github.com/createdreamtech/carti/commit/f3ef99bb64c1a97e04b807e93080e44da22bb680))
+
+
+### Features
+
+* add support for listing all packages local or not installed ([d7e4027](https://github.com/createdreamtech/carti/commit/d7e4027b444baf2e0a71df1e57aac23872bc4c1d))
+* add which command to locate local bundles abs path ([626db1a](https://github.com/createdreamtech/carti/commit/626db1a1e6d51a44812d70414cca50597e21dad8))
+
 # 1.0.0 (2021-01-05)
 
 
