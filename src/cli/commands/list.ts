@@ -9,8 +9,8 @@ export const addListCommand = (config: Config): program.Command => {
     const machineCommand = program.command("list")
         .description("Lists all the installed packages")
         .usage("list")
-        .action(() => {
-            handleList(config)
+        .action(async () => {
+            return handleList(config)
         })
     return machineCommand
 }

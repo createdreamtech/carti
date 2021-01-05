@@ -72,18 +72,18 @@ export const addMachineCommand = (config: Config): program.Command => {
     machineCommand.addCommand(machineAddCommand)
     machineCommand.command("build")
         .description("Build a stored machine from carti-machine-package.json")
-        .action(() => {
+        .action(async () => {
             return handleBuild(config)
         })
 
     machineCommand.command("init")
         .description("Init a stored machine from carti-machine-package.json it is destructive")
-        .action(async () => handleInit())
+        .action(handleInit)
 
 
     machineCommand.command("install <uri>")
         .description("Install a cartesi machine, resolving bundles and building a stored machine from a uri or file path specified carti-machine-package.json")
-        .action((uri) => handleInstall(config, uri))
+        .action(async (uri) => handleInstall(config, uri))
 
     return machineCommand
 }

@@ -30,5 +30,5 @@ async function handleInstall(config: Config, name:string): Promise<void> {
     const bun = bundles.filter((b) => b.id === id)[0]
     await bundle.install(bun,bundleFetcher(bun.uri as string), config.bundleStorage)
     const path = await config.bundleStorage.path(CID.parse(bun.id))
-    config.localConfigStorage.add(path, [bun])
+    return config.localConfigStorage.add(path, [bun])
 }

@@ -95,8 +95,8 @@ const testMachineInitCmdArgs = (dir:string) =>{
     return `${cartiCmd(dir)} machine init`
 }
 
-const testMachineInitCommand=(dir:string) =>{
-    return testUtil.createTestCommand(testMachineInitCmdArgs(dir), () => true)
+const testMachineInitCommand=(dir:string, check:()=>true = ()=>true) =>{
+    return testUtil.createTestCommand(testMachineInitCmdArgs(dir), check)
 }
 
 interface AddCmdOptions {
@@ -143,7 +143,7 @@ describe("integration tests for cli", () => {
         remote builds machine
         local installs remote's machine creating a stored_machine
     */
-    it.only("should bundle a flash drive, publish it, install it, create a machine, and install the machine", () => {
+    it("should bundle a flash drive, publish it, install it, create a machine, and install the machine", () => {
            setup(localTestEnvironment)
            setup(remoteTestEnvironment)
 
@@ -153,20 +153,21 @@ describe("integration tests for cli", () => {
         const addRepoCmd = testAddRepoCommand(remoteTestEnvironment.cwd,
             localTestEnvironment.cwd)
         const installBundleCmd = testBundleInstallCommand(remoteTestEnvironment.cwd,"dapp-test-data")
-        const machineInitCmd = testMachineInitCommand(remoteTestEnvironment.cwd)
-        const machineAddCmd = testMachineAddCommand(remoteTestEnvironment.cwd, "dapp-test-data", 
-            { length: "0x100000", start: "0x8000000000000000" })
+        const machineInitCmd = testMachineInitCommand(remoteTestEnvironment.cwd, ()=> {
 
         // NOTE by default the init fills out a config with default settings so you must edit the file specifically
-        // for your flash drive, there is a concurrency issue that prevents this from happening 
-        /*
-        const machineFile = fs.readFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`)
-        const machineJSON = JSON.parse(machineFile.toString())
-        machineJSON.machineConfig.flash_drive = machineJSON.machineConfig.flash_drive
-            .filter((flash: any) => { flash.cid !== "default-flash" })
-        fs.writeFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`,
-            JSON.stringify(machineJSON, null, 2))
-            */
+        // for your flash drive, there is a concurrency issue that prevents this from happening.
+        // not explicitly after  the command has finished. Hence this inline code here
+            const machineFile = fs.readFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`)
+            const machineJSON = JSON.parse(machineFile.toString())
+            machineJSON.machineConfig.flash_drive = machineJSON.machineConfig.flash_drive
+                .filter((flash: any) => { flash.cid !== "default-flash" })
+            fs.writeFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`,
+                JSON.stringify(machineJSON, null, 2))
+            return true;
+        })
+        const machineAddCmd = testMachineAddCommand(remoteTestEnvironment.cwd, "dapp-test-data", 
+            { length: "0x100000", start: "0x8000000000000000" })
 
         const machineBuildCmd = testMachineBuildCommand(remoteTestEnvironment.cwd)
         const machineInstallCmd = testMachineInstallCommand(localTestEnvironment.cwd, `${remoteTestEnvironment.cwd}/carti-machine-package.json`)
