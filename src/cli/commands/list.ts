@@ -6,7 +6,7 @@ import { shortDesc } from "../../lib/bundle";
 
 
 export const addListCommand = (config: Config): program.Command => {
-    const machineCommand = new program.Command("list")
+    const machineCommand = program.command("list")
         .description("Lists all the installed packages")
         .usage("list")
         .action(() => {
