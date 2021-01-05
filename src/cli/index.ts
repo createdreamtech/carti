@@ -7,12 +7,15 @@ import * as commands from "./commands"
 
 import { config } from "../lib/config"
 const logger = makeLogger("cli");
+
+commands.addBundleCommand()
+commands.addInstallCommand(config)
+commands.addPublishCommand(config)
+commands.addMachineCommand(config)
+commands.addRepoCommand(config.repo)
+commands.addPublishCommand(config)
+commands.addListCommand(config)
+
 program
   //.version(version, "-v, --version")
-  .addCommand(commands.addRepoCommand(config.repo))
-  .addCommand(commands.addBundleCommand())
-  .addCommand(commands.addPublishCommand(config))
-  .addCommand(commands.addInstallCommand(config))
-  .addCommand(commands.addMachineCommand(config))
-  .addCommand(commands.addListCommand(config))
   .parse(process.argv);

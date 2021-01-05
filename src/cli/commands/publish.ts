@@ -18,7 +18,7 @@ export const publishCommand = (handler: (c: any) => Promise<void>): program.Comm
         .action(handler)
 }
 export const addPublishCommand = (config: Config): program.Command => {
-    const publishCommand = new program.Command("publish")
+    const publishCommand = program.command("publish")
         .description("Publish carti bundle to permanent storage")
     publishCommand.command("s3 <bundle> <bucket> <uri>")
         .description("add bundle to s3 adds to bundles.json")

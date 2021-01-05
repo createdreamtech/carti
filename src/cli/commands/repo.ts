@@ -6,7 +6,7 @@ import path from "path";
 const logger = makeLogger("Repo Command")
 
 export const addRepoCommand = (repo: Repo): program.Command => {
-   const repoCommand = new program.Command("repo")
+   const repoCommand = program.command("repo")
       .description("Manage carti package listing repo")
    repoCommand.command("add <src>")
       .description("add package listing repo")
