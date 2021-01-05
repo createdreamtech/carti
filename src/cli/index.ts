@@ -13,7 +13,6 @@ commands.addInstallCommand(config)
 commands.addPublishCommand(config)
 commands.addMachineCommand(config)
 commands.addRepoCommand(config.repo)
-commands.addPublishCommand(config)
 commands.addListCommand(config)
 
 program
