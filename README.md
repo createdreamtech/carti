@@ -18,27 +18,61 @@ Carti is a Cartesi Machines package manager that enables developers to publish, 
 
 - node v15.x.x or greater.
 - npm v6.10.3 or greater.
+- docker if you'd like to build stored machines
 
 ### Installation
 
 Install via npm package
 
 ```bash
-Caveat: Currently not packaged, holding off "for" first official release and more items have been fleshed out
  npm install -g @createdreamtech/carti
 ```
 
-To get a package.
+To get a bundle
 ```sh
-carti add-repo https://www.github.com/cartesi/standard
-carti install --type rom linux
-Did you want to install baen4531313131... from cartesi/standard ?
-Y
-carti add --rom ./bundles/baen45313131131 
-carti add --rom cartesi/standard
-carti publish --type disk ./carti_package.json
+mdkir carti-example
+cd carti-example 
+# all commands have support for --help and will help guide you
+carti --help
+# add a listing of bundle locations
+carti repo add https://github.com/createdreamtech/carti-example-packages  
+# you should now see a list of available bundles
+carti list --all
+# @flashdrive/remote-test-data:1.0.0:baen.... 
+carti install remote-test-data 
+carti list
+# @flashdrive/remote-test-data:1.0.0:baenrwic6ybfsdmdtm52fhgbeip6ndoi3e62bonaadmotji4x6vvdpedt3m:local
+carti machine init
+cat carti-machine-package.json
+# create a default stored machine template 
+carti machine build
+
+ls stored_machine/
+# 0000000000001000-f000.bin	0000000080000000-4000000.bin	8000000000000000-3c00000.bin	config		hash
+
+# it creates a stored_machine that you can then load using descrates or just manually via cmdline
+# right now the copy paste cmd needs tlc so just ignore
+
+# add your own flash drive to a machine 
+carti machine add flash remote-test-data --start 0x80000000000 --length 0x100000
+# notice the additional entry in the flash section
+cat carti-machine-package.json
+# rm the flash-data entry as it's no longer necessary
+carti machine build
+# And you've just created your own machine from parts
+cd ..
+mkdir fully_specced
+# we will install a machine just from a spec file it will resolve the required packages given you have repos that 
+# resolve the packages specified.
+carti machine install https://raw.githubusercontent.com/createdreamtech/carti-example-packages/main/examples/custom-flash/carti-machine-package.json
+carti list
+
+# will install all the machine bundles withotu building a stored machine
+carti machine install --nobuild https://raw.githubusercontent.com/createdreamtech/carti-example-packages/main/examples/custom-flash/carti-machine-package.json
+
+#
 ```
-## Organization 
+## Organization(Stale)
 ```
 .
 ├── encoders
@@ -79,7 +113,7 @@ carti publish --type disk ./carti_package.json
     ├── s3.ts
     └── util.ts
 ```
-### Components
+### Components(Stale)
 #### Encoders
 Contains the code to encode data be that CBOR, BASE64, etc... 
 #### Packager
