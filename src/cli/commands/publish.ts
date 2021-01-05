@@ -25,22 +25,22 @@ export const addPublishCommand = (config: Config): program.Command => {
         .usage("s3 bundleName bucketName publicURI")
         .option("--nosave", "don't add to bundles.json")
         .requiredOption("--bucket", "Name of the s3 bucket to upload to")
-        .action((bundle, bucket, uri, options) => {
-            handlePublish(config, bundle, new Storage(new S3Provider(bucket)), uri, options.nosave)
+        .action(async (bundle, bucket, uri, options) => {
+            await handlePublish(config, bundle, new Storage(new S3Provider(bucket)), uri, options.nosave)
             console.log(`published to s3:${bucket}`)
         })
     publishCommand.command("disk <src> <path>")
         .description("Publish file to disk storage for testing add to bundles.json")
         .option("--nosave", "don't add to bundles.json")
-        .action((src, pth, options) => {
+        .action(async (src, pth, options) => {
             const absPath = path.resolve(pth)
-            handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath, options.nosave)
+            await handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath, options.nosave)
             console.log(`published to path:${absPath}`)
         })
     publishCommand.command("uri <bundle> <uri>")
         .description("Just takes a bundle name and uri/abspath adds to bundles.json w/o uploading")
-        .action((bundle, uri, options) => {
-            handlePublish(config, bundle, new Storage(new MemoryProvider()), uri, true)
+        .action(async (bundle, uri, options) => {
+            await handlePublish(config, bundle, new Storage(new MemoryProvider()), uri, true)
             console.log(`published to uri:${uri}`)
         })
     return publishCommand
@@ -62,10 +62,9 @@ async function handlePublish(config: Config, name: string, storage: Storage, uri
     if (!uri)
         delete uploadBundle.uri
     if(!nosave){
-        config.bundleListingManager.addBundle(uploadBundle)
-        return
+        return config.bundleListingManager.addBundle(uploadBundle)
     }
     const bun = await clib.bundle.bundle(uploadBundle as bundle.BundleMeta, storage)
     bun.uri = uri
-    config.bundleListingManager.addBundle(bun)
+    return config.bundleListingManager.addBundle(bun)
 }
