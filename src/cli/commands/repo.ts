@@ -14,7 +14,7 @@ export const addRepoCommand = (repo: Repo): program.Command => {
          if (!src) {
             throw new Error("could not add missing listing")
          }
-         return repo.add(path.resolve(src))
+         return repo.add(src)
       })
    repoCommand.command("update [src]")
       .description("update all package listings or an individual package repo")
