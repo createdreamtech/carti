@@ -26,20 +26,22 @@ export const addPublishCommand = (config: Config): program.Command => {
         .option("--nosave", "don't add to bundles.json")
         .requiredOption("--bucket", "Name of the s3 bucket to upload to")
         .action((bundle, bucket, uri, options) => {
-            handlePublish(config, bundle, new Storage(new S3Provider(bucket)), uri)
+            handlePublish(config, bundle, new Storage(new S3Provider(bucket)), uri, options.nosave)
+            console.log(`published to s3:${bucket}`)
         })
     publishCommand.command("disk <src> <path>")
         .description("Publish file to disk storage for testing add to bundles.json")
         .option("--nosave", "don't add to bundles.json")
         .action((src, pth, options) => {
             const absPath = path.resolve(pth)
-            handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath)
+            handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath, options.nosave)
+            console.log(`published to path:${absPath}`)
         })
     publishCommand.command("uri <bundle> <uri>")
-        .description("Just takes a bundle name and uri and writes to bundles.json w/o uploading")
-        .option("--nosave", "don't add to bundles.json")
+        .description("Just takes a bundle name and uri/abspath adds to bundles.json w/o uploading")
         .action((bundle, uri, options) => {
-            handlePublish(config, bundle, new Storage(new MemoryProvider()), uri)
+            handlePublish(config, bundle, new Storage(new MemoryProvider()), uri, true)
+            console.log(`published to uri:${uri}`)
         })
     return publishCommand
 }
@@ -50,7 +52,7 @@ const renderBundle = (b: Bundle): string => {
     return shortDesc({ bundleType, name, version, id, uri: "local" })
 }
 
-async function handlePublish(config: Config, name: string, storage: Storage, uri?: string): Promise<void> {
+async function handlePublish(config: Config, name: string, storage: Storage, uri?: string, nosave?:boolean): Promise<void> {
     const bundles: Bundle[] = await config.localConfigStorage.get(name)
     const question = utils.pickBundle("Which bundle would you like to publish", bundles, renderBundle)
     const answer = await inquirer.prompt([question])
@@ -59,6 +61,10 @@ async function handlePublish(config: Config, name: string, storage: Storage, uri
     const uploadBundle = Object.assign({}, bundle, { path: bundle.uri as string, uri })
     if (!uri)
         delete uploadBundle.uri
+    if(!nosave){
+        config.bundleListingManager.addBundle(uploadBundle)
+        return
+    }
     const bun = await clib.bundle.bundle(uploadBundle as bundle.BundleMeta, storage)
     bun.uri = uri
     config.bundleListingManager.addBundle(bun)
