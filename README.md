@@ -10,8 +10,42 @@
 
 <!-- about the project -->
 ## About The Project
-Carti is a Cartesi Machines package manager that enables developers to publish, install, and store Cartesi rom, ram, and flash drives, and their organization into stored machines in a shareable and discoverable way.  
+Carti is a package manager for Cartesi that enables developers to publish and reuse Cartesi assets such as ROM, RAM and flash drives, as well as organizing those assets into full machine configurations in a shareable and discoverable way.  
 
+## Concepts
+Carti provides a command line interface (CLI) for the following major tasks:
+1. Create *bundles* from local assets (such as an `ext2` file representing a flash drive with a cross-compiled utility) in order to allow those assets to be indexed, stored and retrieved from remote locations
+1. Publish *bundle repositories* so that users can list and download assets produced by the community
+1. Allow users to specify a full Cartesi Machine configuration using bundles, making it possible to reuse assets produced and published by the community
+
+## CLI Overview
+### Bundles
+#### `carti bundle`
+Creates a bundle from an existing asset, wrapping it with necessary metadata.
+#### `carti install`
+Installs a bundle locally by looking it up in a configured repository and retrieving the corresponding asset from its specified remote storage location.
+#### `carti publish`
+Publishes a bundle's asset to an indicated accessible remote storage such as S3.
+#### `carti list`
+Lists bundles locally installed and/or available from the configured repositories.
+#### `carti which`
+Resolves bundle location including local asset path.
+### Repositories
+#### `carti repo add`
+Includes an existing repository as a source of bundles to be installed and used locally.
+#### `carti repo rm`
+Removes a repository as a source of bundles to be installed and used locally.
+
+#### `carti repo update`
+Updates the local cached listings of bundles available from repositories.
+
+### Cartesi Machines
+#### `carti machine add`
+Adds a bundle to a local Carti machine configuration file.
+#### `carti machine install`
+Installs bundles referenced by a Carti machine configuration file and produces a corresponding Cartesi Lua machine configuration pointing at local assets. This Lua file can then be used with regular Cartesi tools.
+#### `carti machine publish`
+Creates and publishes bundles for all assets referenced by a regular Cartesi Lua machine configuration, and produces a corresponding Carti machine configuration file using those bundles.
 ## Getting Started
 
 ### Prerequisites
