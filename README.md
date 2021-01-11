@@ -46,6 +46,34 @@ Adds a bundle to a local Carti machine configuration file.
 Installs bundles referenced by a Carti machine configuration file and produces a corresponding Cartesi Lua machine configuration pointing at local assets. This Lua file can then be used with regular Cartesi tools.
 #### `carti machine publish`
 Creates and publishes bundles for all assets referenced by a regular Cartesi Lua machine configuration, and produces a corresponding Carti machine configuration file using those bundles.
+
+## Sample use cases and workflow
+### Use case: reusing a flash drive
+1. A developer creates a Cartesi Machine that includes a flash drive with a utility that was cross-compiled for RISC-V. In this example, the flash drive contains the utility for computing Dogecoin/Litecoin hashes using `libscrypt`, as detailed in the [Descartes Tutorials](https://github.com/cartesi/descartes-tutorials/tree/master/dogecoin-hash). He then *bundles* and *publishes* the corresponding `ext2` file:
+   ```bash
+   carti bundle --type flash --name scrypt-hash --version 1.0.0 scrypt-hash.ext2
+   carti publish s3 --bucket xyz scrypt-hash
+   ```
+
+1. At this point the `publish` command has recorded the bundle's metadata and remote S3 asset location in the local `bundles.json` repository index file. This index file can then be committed to Git, so that it becomes available at the URL https://raw.githubusercontent.com/my-org/my-repo/main/bundles.json.
+
+1. Another user that wishes to reuse this drive for his own Cartesi Machine then adds the original developer's repository and installs the desired bundle:
+   ```bash
+   carti repo add https://raw.githubusercontent.com/my-org/my-repo/main/bundles.json
+   carti install scrypt-hash
+   ```
+
+1. Finally, the user can build a Cartesi Machine using the installed asset, here using the `which` command to more easily retrieve the asset's path in the local filesystem:
+   ```bash
+   cartesi-machine \
+    --flash-drive="label:scrypt-hash,filename:$(carti which -py scrypt-hash)" \
+    --flash-drive="label:input,length:1<<12" \
+    --flash-drive="label:output,length:1<<12" \
+    -- $'cd /mnt/scrypt-hash ; ./scrypt-hash $(flashdrive input) $(flashdrive output)'
+   ```
+
+
+
 ## Getting Started
 
 ### Prerequisites
