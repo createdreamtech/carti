@@ -10,7 +10,87 @@
 
 <!-- about the project -->
 ## About The Project
-Carti is a Cartesi Machines package manager that enables developers to publish, install, and store Cartesi rom, ram, and flash drives, and their organization into stored machines in a shareable and discoverable way.  
+Carti is a package manager for Cartesi that enables developers to publish and reuse Cartesi assets such as ROM, RAM and flash drives, as well as organizing those assets into full machine configurations in a shareable and discoverable way.  
+
+## Concepts
+Carti provides a command line interface (CLI) for the following major tasks:
+1. Create *bundles* from local assets (such as an `ext2` file representing a flash drive with a cross-compiled utility) in order to allow those assets to be indexed, stored and retrieved from remote locations
+1. Publish *bundle repositories* so that users can list and download assets produced by the community
+1. Allow users to specify a full Cartesi Machine configuration using bundles, making it possible to reuse assets produced and published by the community
+
+## CLI Overview
+### Bundles
+#### `carti bundle`
+Creates a bundle from an existing asset, wrapping it with necessary metadata.
+#### `carti install`
+Installs a bundle locally by looking it up in a configured repository and retrieving the corresponding asset from its specified remote storage location.
+#### `carti publish`
+Publishes a bundle's asset to an indicated accessible remote storage such as S3.
+#### `carti list`
+Lists bundles locally installed and/or available from the configured repositories.
+#### `carti which`
+Resolves bundle location including local asset path.
+### Repositories
+#### `carti repo add`
+Includes an existing repository as a source of bundles to be installed and used locally.
+#### `carti repo rm`
+Removes a repository as a source of bundles to be installed and used locally.
+
+#### `carti repo update`
+Updates the local cached listings of bundles available from repositories.
+
+### Cartesi Machines
+#### `carti machine add`
+Adds a bundle to a local Carti machine configuration file.
+#### `carti machine install`
+Installs bundles referenced by a Carti machine configuration file and produces a corresponding Cartesi Lua machine configuration pointing at local assets. This Lua file can then be used with regular Cartesi tools.
+#### `carti machine publish`
+Creates and publishes bundles for all assets referenced by a regular Cartesi Lua machine configuration, and produces a corresponding Carti machine configuration file using those bundles.
+
+## Sample use cases and workflow
+### Use case: reusing a flash drive
+A developer creates a Cartesi Machine that includes a flash drive with a utility that was cross-compiled for RISC-V (for instance, the utility for computing Dogecoin/Litecoin hashes using `libscrypt`, as detailed in the [Descartes Tutorials](https://github.com/cartesi/descartes-tutorials/tree/master/dogecoin-hash)). Other users would like to build machines using that utility, but without having to repeat all the original work - which may indeed be very complex if there are many dependencies involved.
+
+1. First, the developer *bundles* and *publishes* the corresponding `ext2` file:
+   ```bash
+   carti bundle --type flash --name scrypt-hash --version 1.0.0 scrypt-hash.ext2
+   carti publish s3 --bucket xyz scrypt-hash
+   ```
+
+1. At this point the `publish` command has recorded the bundle's metadata and remote S3 asset location in the local `bundles.json` repository index file. This index file can then be committed to Git, so that it becomes available at the URL https://raw.githubusercontent.com/my-org/my-repo/main/bundles.json.
+
+1. Another user that wishes to reuse this drive for his own Cartesi Machine then adds the original developer's repository and installs the desired bundle:
+   ```bash
+   carti repo add https://raw.githubusercontent.com/my-org/my-repo/main/bundles.json
+   carti install scrypt-hash
+   ```
+
+1. Finally, the user can build a Cartesi Machine using the installed asset, here using the `which` command to more easily retrieve the asset's path in the local filesystem:
+   ```bash
+   cartesi-machine \
+    --flash-drive="label:scrypt-hash,filename:$(carti which -py scrypt-hash)" \
+    --flash-drive="label:input,length:1<<12" \
+    --flash-drive="label:output,length:1<<12" \
+    -- $'cd /mnt/scrypt-hash ; ./scrypt-hash $(flashdrive input) $(flashdrive output)'
+   ```
+
+### Use case: running and customizing a published Cartesi Machine
+
+A developer wishes to allow other users to run his Cartesi Machine. This could be accomplished by simply providing the full stored machine (as described in the [Cartesi documentation](https://cartesi.io/en/docs/machine/host/cmdline/#persistent-cartesi-machines)), but that would entail uploading a large amount of data that is almost entirely already available online, such as the contents of the kernel and `rootfs` drive. In this context, Carti can be used to create and publish a lightweight Cartesi Machine configuration that can handle bundles referring to remotely stored assets.
+
+1. First, the developer extracts the Lua configuration for his Cartesi Machine and creates a corresponding Carti machine configuration referring to published bundles:
+   ```bash
+   carti machine publish s3 --bucket xyz machine-config.lua > carti-machine.json
+   ```
+
+1. The generated `carti-machine.json` file is then distributed, and another user downloads it. The user then *installs* the machine, so as to retrieve all remote assets and build a regular Cartesi Machine configuration in Lua, that only refers to local files:
+   ```bash
+   carti machine install carti-machine.json > machine-config.lua
+   ```
+
+1. The user then instantiates and runs the machine using the Cartesi Machine Lua interface, as explained in [the Cartesi documentation](https://cartesi.io/en/docs/machine/host/lua/#loading-and-running-machines).
+
+1. Being a human-readable JSON file, the user can then customize the machine configuration, for example by changing the command line. He can also update the version of the referenced bundles, for instance to retrieve a newer version that fixes a bug.
 
 ## Getting Started
 
