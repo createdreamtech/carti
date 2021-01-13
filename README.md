@@ -49,7 +49,9 @@ Creates and publishes bundles for all assets referenced by a regular Cartesi Lua
 
 ## Sample use cases and workflow
 ### Use case: reusing a flash drive
-1. A developer creates a Cartesi Machine that includes a flash drive with a utility that was cross-compiled for RISC-V. In this example, the flash drive contains the utility for computing Dogecoin/Litecoin hashes using `libscrypt`, as detailed in the [Descartes Tutorials](https://github.com/cartesi/descartes-tutorials/tree/master/dogecoin-hash). He then *bundles* and *publishes* the corresponding `ext2` file:
+A developer creates a Cartesi Machine that includes a flash drive with a utility that was cross-compiled for RISC-V (for instance, the utility for computing Dogecoin/Litecoin hashes using `libscrypt`, as detailed in the [Descartes Tutorials](https://github.com/cartesi/descartes-tutorials/tree/master/dogecoin-hash)). Other users would like to build machines using that utility, but without having to repeat all the original work - which may indeed be very complex if there are many dependencies involved.
+
+1. First, the developer *bundles* and *publishes* the corresponding `ext2` file:
    ```bash
    carti bundle --type flash --name scrypt-hash --version 1.0.0 scrypt-hash.ext2
    carti publish s3 --bucket xyz scrypt-hash
@@ -72,7 +74,23 @@ Creates and publishes bundles for all assets referenced by a regular Cartesi Lua
     -- $'cd /mnt/scrypt-hash ; ./scrypt-hash $(flashdrive input) $(flashdrive output)'
    ```
 
+### Use case: running and customizing a published Cartesi Machine
 
+A developer wishes to allow other users to run his Cartesi Machine. This could be accomplished by simply providing the full stored machine (as described in the [Cartesi documentation](https://cartesi.io/en/docs/machine/host/cmdline/#persistent-cartesi-machines)), but that would entail uploading a large amount of data that is almost entirely already available online, such as the contents of the kernel and `rootfs` drive. In this context, Carti can be used to create and publish a lightweight Cartesi Machine configuration that can handle bundles referring to remotely stored assets.
+
+1. First, the developer extracts the Lua configuration for his Cartesi Machine and creates a corresponding Carti machine configuration referring to published bundles:
+   ```bash
+   carti machine publish s3 --bucket xyz machine-config.lua > carti-machine.json
+   ```
+
+1. The generated `carti-machine.json` file is then distributed, and another user downloads it. The user then *installs* the machine, so as to retrieve all remote assets and build a regular Cartesi Machine configuration in Lua, that only refers to local files:
+   ```bash
+   carti machine install carti-machine.json > machine-config.lua
+   ```
+
+1. The user then instantiates and runs the machine using the Cartesi Machine Lua interface, as explained in [the Cartesi documentation](https://cartesi.io/en/docs/machine/host/lua/#loading-and-running-machines).
+
+1. Being a human-readable JSON file, the user can then customize the machine configuration, for example by changing the command line. He can also update the version of the referenced bundles, for instance to retrieve a newer version that fixes a bug.
 
 ## Getting Started
 
