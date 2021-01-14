@@ -5,10 +5,6 @@ export class BundleManager {
     bundlesFilePath: string
     constructor(dir: string) {
         this.bundlesFilePath = `${dir}/bundles.json`;
-        fs.ensureDirSync(dir)
-        if (!fs.existsSync(this.bundlesFilePath)) {
-            fs.writeFileSync(this.bundlesFilePath, JSON.stringify({ bundles: [] }))
-        }
     }
     async addBundle(b: Bundle) {
         const bundleConfig = await this.getBundles()
@@ -26,7 +22,8 @@ export class BundleManager {
 
     async getBundles(): Promise<Bundle[]> {
         try {
-            return await parseBundlesFile(fs.createReadStream(this.bundlesFilePath)) || []
+            const bundles = await parseBundlesFile(fs.createReadStream(this.bundlesFilePath))
+            return bundles || []
         } catch (e) {
             return []
         }
