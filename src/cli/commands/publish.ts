@@ -52,7 +52,7 @@ async function handlePublish(config: Config, name: string, storage: Storage, uri
     const answer = await inquirer.prompt([question])
     const { id } = parseShortDesc(answer.bundle)
     const bundle = bundles.filter((b) => b.id === id)[0]
-    const bundleWithNewUri = uri ? Object.assign({}, bundle) : Object.assign({}, bundle, { uri })
+    const bundleWithNewUri = uri ? Object.assign({}, bundle, { uri }) : Object.assign({}, bundle)    
     if(nosave){
         return config.bundleListingManager.addBundle(bundleWithNewUri)
     }
