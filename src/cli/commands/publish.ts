@@ -7,6 +7,7 @@ import inquirer from "inquirer"
 import * as utils from "../util"
 import path from "path";
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
+import { CID } from "multiformats";
 
 const logger = makeLogger("Publish Command")
 
@@ -55,7 +56,8 @@ async function handlePublish(config: Config, name: string, storage: Storage, uri
     if(nosave){
         return config.bundleListingManager.addBundle(bundleWithNewUri)
     }
-    const bundleWithPath = Object.assign({}, bundleWithNewUri, { path: bundle.uri as string})
+    const localPath = await config.bundleStorage.path(CID.parse(bundle.id))
+    const bundleWithPath = Object.assign({}, bundleWithNewUri, { path: localPath as string})
     const bun = await clib.bundle.bundle(bundleWithPath as bundle.BundleMeta, storage)
     bun.uri = uri
     return config.bundleListingManager.addBundle(bun)
