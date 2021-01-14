@@ -1,3 +1,12 @@
+## [1.2.1](https://github.com/createdreamtech/carti/compare/1.2.0...1.2.1) (2021-01-14)
+
+
+### Bug Fixes
+
+* corrects uri for disk publish ([cda8153](https://github.com/createdreamtech/carti/commit/cda8153367a4f9015bbe4476ab77fc32ecae1520)), closes [#18](https://github.com/createdreamtech/carti/issues/18)
+* localpath resolution when package has remote origin ([28e969f](https://github.com/createdreamtech/carti/commit/28e969fd0c9543c41cda59cf0d3b700f193dcbca))
+* stops auto creating bundles.json now only created upon need ([2618482](https://github.com/createdreamtech/carti/commit/261848234e5dd09c3a03a1b31cf54cad0a28739c)), closes [#14](https://github.com/createdreamtech/carti/issues/14)
+
 # [1.2.0](https://github.com/createdreamtech/carti/compare/1.1.0...1.2.0) (2021-01-05)
 
 
