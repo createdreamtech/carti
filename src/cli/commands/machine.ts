@@ -25,9 +25,9 @@ type addMachineCommandType = "ram" | "rom" | "flashdrive" | "raw";
 
 export const addMachineCommand = (config: Config): program.Command => {
     const add = (addType: addMachineCommandType) => {
-        return (name: string, options: PackageEntryOptions) => {
-            const { length, start, bootargs, shared } = options
-            return handleAdd(config, name, { length, start, bootargs, shared }, addType)
+        return (name: string, options: PackageEntryOptions & {yes: boolean}) => {
+            const { length, start, bootargs, shared, yes } = options
+            return handleAdd(config, name, { length, start, bootargs, shared }, addType, yes)
         }
     }
     const machineCommand = program.command("machine")
@@ -41,17 +41,17 @@ export const addMachineCommand = (config: Config): program.Command => {
         .passCommandToAction(false)
 
     machineAddCommand.command("ram <bundle>")
-        .storeOptionsAsProperties(false)
-        .passCommandToAction(false)
         .description("add a bundle to the ram entry for carti-machine-package.json")
         .requiredOption("-l, --length <length>", "length of the drive in hex format ex. 0x4000")
         .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
+        .option("-y, --yes", "choose match without prompt")
         .action(add("ram"))
 
     machineAddCommand.command("flash <bundle>")
         .requiredOption("-l, --length <length>", "length of the drive in hex format ex. 0x4000000")
         .requiredOption("-s, --start <start>", "start position of the drive in hex format ex. 0x800000")
         .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
+        .option("-y, --yes", "choose match without prompt")
         .description("add a bundle to the flash entry for carti-machine-package.json")
         .action(add("flashdrive"))
 
@@ -59,6 +59,7 @@ export const addMachineCommand = (config: Config): program.Command => {
         .description("add a bundle to the rom entry for carti-machine-package.json")
         .option("-b, --bootargs <bootargs>", "boot arguments for the rom")
         .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
+        .option("-y, --yes", "choose match without prompt")
         .action(add("rom"))
 
     /*
@@ -132,14 +133,19 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean): Prom
     return buildMachine(config, packageConfig)
 }
 
-async function handleAdd(config: Config, name: string, options: clib.PackageEntryOptions, addType: addMachineCommandType): Promise<void> {
+async function handleAdd(config: Config, name: string, options: clib.PackageEntryOptions, addType: addMachineCommandType, yes: boolean): Promise<void> {
     const bundles: Bundle[] = await config.localConfigStorage.get(name)
-    const question = utils.pickBundle("Which bundle would you like to add to your cartesi machine build", bundles, renderBundle)
-    const answer = await inquirer.prompt([question])
-    const { id } = parseShortDesc(answer.bundle)
-    const bundle = bundles.filter((b) => b.id === id)[0]
+    let bundle = bundles[0];
+    if (!yes) {
+        const question = utils.pickBundle("Which bundle would you like to add to your cartesi machine build", bundles, renderBundle)
+        const answer = await inquirer.prompt([question])
+        const { id } = parseShortDesc(answer.bundle)
+        bundle = bundles.filter((b) => b.id === id)[0]
+    }
     let cfg = await getMachineConfig()
-    cfg = clib.updatePackageEntry(bundle, cfg, options)
+    // NOTE we respect commandline ideal of what the bundleType should be so if you install something in
+    // ram you can install the same data as a flash drive
+    cfg = clib.updatePackageEntry(Object.assign({}, bundle, {bundleType: addType}), cfg, options)
     return writeMachineConfig(cfg)
 }
 
