@@ -17,24 +17,27 @@ export const addPublishCommand = (config: Config): program.Command => {
     publishCommand.command("s3 <bundleName> <uri>")
         .description("add bundle to s3 adds to bundles.json")
         .usage("s3 --bucket <bucket> bundleName publicURI")
+        .option("-y, --yes", "choose match without prompt")
         .option("--nosave", "don't upload to s3")
         .requiredOption("--bucket <bucket>", "Name of the s3 bucket to upload to")
         .action(async (bundleName, uri, options) => {
-            await handlePublish(config, bundleName, new Storage(new S3Provider(options.bucket)), uri, options.nosave)
+            await handlePublish(config, bundleName, new Storage(new S3Provider(options.bucket)), options.yes, uri, options.nosave)
             console.log(`published to s3:${options.bucket}`)
         })
     publishCommand.command("disk <src> <path>")
         .description("Publish file to disk storage for testing add to bundles.json")
+        .option("-y, --yes", "choose match without prompt")
         .option("--nosave", "don't add to disk")
         .action(async (src, pth, options) => {
             const absPath = path.resolve(pth)
-            await handlePublish(config, src, new Storage(new DiskProvider(absPath)), absPath, options.nosave)
+            await handlePublish(config, src, new Storage(new DiskProvider(absPath)), options.yes, absPath, options.nosave)
             console.log(`published to path:${absPath}`)
         })
     publishCommand.command("uri <bundle> <uri>")
         .description("Just takes a bundle name and uri/abspath adds to bundles.json w/o uploading")
+        .option("-y, --yes", "choose match without prompt")
         .action(async (bundle, uri, options) => {
-            await handlePublish(config, bundle, new Storage(new MemoryProvider()), uri, true)
+            await handlePublish(config, bundle, new Storage(new MemoryProvider()), options.yes, uri, true)
             console.log(`published to uri:${uri}`)
         })
     return publishCommand
@@ -46,14 +49,17 @@ const renderBundle = (b: Bundle): string => {
     return shortDesc({ bundleType, name, version, id, uri: "local" })
 }
 
-async function handlePublish(config: Config, name: string, storage: Storage, uri?: string, nosave?:boolean): Promise<void> {
+async function handlePublish(config: Config, name: string, storage: Storage, yes: boolean, uri?: string, nosave?: boolean): Promise<void> {
     const bundles: Bundle[] = await config.localConfigStorage.get(name)
-    const question = utils.pickBundle("Which bundle would you like to publish", bundles, renderBundle)
-    const answer = await inquirer.prompt([question])
-    const { id } = parseShortDesc(answer.bundle)
-    const bundle = bundles.filter((b) => b.id === id)[0]
-    const bundleWithNewUri = uri ? Object.assign({}, bundle, { uri }) : Object.assign({}, bundle)    
-    if(nosave){
+    let bundle = bundles[0]
+    if (!yes) {
+        const question = utils.pickBundle("Which bundle would you like to publish", bundles, renderBundle)
+        const answer = await inquirer.prompt([question])
+        const { id } = parseShortDesc(answer.bundle)
+        bundle = bundles.filter((b) => b.id === id)[0]
+    }
+    const bundleWithNewUri = uri ? Object.assign({}, bundle, { uri }) : Object.assign({}, bundle)
+    if (nosave) {
         return config.bundleListingManager.addBundle(bundleWithNewUri)
     }
     const localPath = await config.bundleStorage.path(CID.parse(bundle.id))
