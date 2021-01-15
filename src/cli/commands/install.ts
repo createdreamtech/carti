@@ -12,8 +12,9 @@ export const addInstallCommand = (config: Config): program.Command => {
    return program
    .command("install <name>") 
    .description("Install a bundle locally")
-   .action(async (name)=>{
-       return handleInstall(config,name)
+   .option("-y, --yes", "choose match without prompt")
+   .action(async (name, options)=>{
+       return handleInstall(config,name, options.yes)
    })
 }
 
@@ -22,12 +23,15 @@ const renderBundle = (b: Bundle): string => {
     return shortDesc({ bundleType, name, version, id , uri}) 
 }
 
-async function handleInstall(config: Config, name:string): Promise<void> {
+async function handleInstall(config: Config, name:string, first:boolean): Promise<void> {
     const bundles = await config.globalConfigStorage.get(name)
-    const question = utils.pickBundle("Which bundle would you like to install", bundles, renderBundle)
-    const answer = await inquirer.prompt([question])
-    const {id} = parseShortDesc(answer.bundle)
-    const bun = bundles.filter((b) => b.id === id)[0]
+    let bun = bundles[0]
+    if (!first) {
+        const question = utils.pickBundle("Which bundle would you like to install", bundles, renderBundle)
+        const answer = await inquirer.prompt([question])
+        const { id } = parseShortDesc(answer.bundle)
+        bun = bundles.filter((b) => b.id === id)[0]
+    }
     await bundle.install(bun,bundleFetcher(bun.uri as string), config.bundleStorage)
     const path = await config.bundleStorage.path(CID.parse(bun.id))
     return config.localConfigStorage.add(path, [bun])
