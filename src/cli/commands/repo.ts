@@ -1,7 +1,6 @@
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
 import { Repo } from "../../lib/repo";
-import path from "path";
 
 const logger = makeLogger("Repo Command")
 
@@ -18,9 +17,11 @@ export const addRepoCommand = (repo: Repo): program.Command => {
       })
    repoCommand.command("update [src]")
       .description("update all package listings or an individual package repo")
-      .action((src) => repo.update(path.resolve(src)))
+      .action((src) => {
+         return repo.update(src)
+      })
    repoCommand.command("rm <src>")
       .description("remove")
-      .action(async (src) => repo.rm(path.resolve(src)))
+      .action(async (src) => repo.rm(src))
    return repoCommand
 }
