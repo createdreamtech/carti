@@ -2,9 +2,23 @@ import { CartiConfigStorage } from "../storage"
 import { Fetcher } from "../fetcher";
 import { parseBundlesFile } from "@createdreamtech/carti-core"
 import { makeLogger } from "../logging"
+import url from "url"
+import path from "path"
 const logger = makeLogger("Repo")
 
 const BUNDLES_NAME = "bundles.json"
+
+const resolveURI = (uri?: string) => {
+  if(!uri){
+      return undefined
+  }
+  const {protocol} = url.parse(uri)
+  if(protocol)
+    return uri 
+
+  return path.resolve(uri)
+}
+
 export class Repo {
 
     cgs: CartiConfigStorage
@@ -18,20 +32,27 @@ export class Repo {
         return parseBundlesFile(content)
     }
 
-    async add(path: string) {
+    async add(uri: string) {
         //TODO remove hardcoded reference
         // const bundles:Bundle[] = 
-        const bundles = await this.resolveBundles(path)
-        console.log("resolving bundles", bundles)
-        return this.cgs.add(path, bundles)
+        const ur = resolveURI(uri)
+        if(ur === undefined){
+            console.error("could not add uri to repo")
+            return
+        }
+        const bundles = await this.resolveBundles(ur)
+        return this.cgs.add(ur, bundles)
     }
 
-    async rm(path: string) {
-        return this.cgs.rm(path)
+    async rm(uri: string) {
+        const ur = resolveURI(uri)
+        if(ur) 
+            return this.cgs.rm(ur)
     }
-    async update(path?: string) {
-        if (path)
-            return this.add(path)
+    async update(uri?: string) {
+        const ur = resolveURI(uri)
+        if (ur)
+            return this.add(ur)
         return this.updateAll()
     }
 
