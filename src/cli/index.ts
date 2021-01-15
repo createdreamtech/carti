@@ -15,6 +15,7 @@ commands.addMachineCommand(config)
 commands.addRepoCommand(config.repo)
 commands.addListCommand(config)
 commands.addWhichCommand(config)
+commands.addGetCommand(config)
 
 program
   //.version(version, "-v, --version")

@@ -13,8 +13,8 @@ export const addInstallCommand = (config: Config): program.Command => {
    .command("install <name>") 
    .description("Install a bundle locally")
    .option("-y, --yes", "choose match without prompt")
-   .action(async (name, options)=>{
-       return handleInstall(config,name, options.yes)
+       .action(async (name, options) => {
+       return handleInstall(config,name, options.yes) as any
    })
 }
 
@@ -23,7 +23,7 @@ const renderBundle = (b: Bundle): string => {
     return shortDesc({ bundleType, name, version, id , uri}) 
 }
 
-async function handleInstall(config: Config, name:string, first:boolean): Promise<void> {
+export async function handleInstall(config: Config, name:string, first:boolean): Promise<Bundle> {
     const bundles = await config.globalConfigStorage.get(name)
     let bun = bundles[0]
     if (!first) {
@@ -34,5 +34,6 @@ async function handleInstall(config: Config, name:string, first:boolean): Promis
     }
     await bundle.install(bun,bundleFetcher(bun.uri as string), config.bundleStorage)
     const path = await config.bundleStorage.path(CID.parse(bun.id))
-    return config.localConfigStorage.add(path, [bun])
+    await config.localConfigStorage.add(path, [bun])
+    return bun
 }
