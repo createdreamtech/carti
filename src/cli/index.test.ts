@@ -74,6 +74,14 @@ const testBundleInstallCommand=(dir: string, bundleName: string)=> {
     return testUtil.createTestCommand(testBundleInstallArgs(dir, bundleName), () => true) 
 }
 
+const testGetArgs=(dir:string, bundleName: string)=> {
+    return `${cartiCmd(dir)} get -y ${bundleName}`
+}
+
+const testGetCommmand=(dir:string ,bundleName: string)=> {
+    return testUtil.createTestCommand(testGetArgs(dir, bundleName), () => true) 
+}
+
 const diskLocation = (dir:string) =>
     `${dir}/carti_bundles/baenrwic6ybfsdmdtm52fhgbeip6ndoi3e62bonaadmotji4x6vvdpedt3m/dapp-test-data.ext2`
 const testPublishCmdArgs = (dir: string, uri: string) => {
@@ -153,6 +161,7 @@ describe("integration tests for cli", () => {
         const addRepoCmd = testAddRepoCommand(remoteTestEnvironment.cwd,
             localTestEnvironment.cwd)
         const installBundleCmd = testBundleInstallCommand(remoteTestEnvironment.cwd,"dapp-test-data")
+        const getCmd = testGetCommmand(remoteTestEnvironment.cwd, "dapp-test-data")
         const machineInitCmd = testMachineInitCommand(remoteTestEnvironment.cwd, ()=> {
 
         // NOTE by default the init fills out a config with default settings so you must edit the file specifically
@@ -175,6 +184,7 @@ describe("integration tests for cli", () => {
         //otherwise throws exception
         expect(testUtil.testCommand(publishBundleCmd, Object.assign({},localTestEnvironment,{input: "\r\n"}))).toBe(true)
         expect(testUtil.testCommand(addRepoCmd, remoteTestEnvironment)).toBe(true)
+        expect(testUtil.testCommand(getCmd, remoteTestEnvironment)).toBe(true)
         expect(testUtil.testCommand(installBundleCmd, Object.assign({},remoteTestEnvironment,{input:"\r\n"}))).toBe(true)
         expect(testUtil.testCommand(machineInitCmd, remoteTestEnvironment)).toBe(true)
         expect(testUtil.testCommand(machineAddCmd, Object.assign({}, remoteTestEnvironment, { input: "\r\n" }))).toBe(true)
