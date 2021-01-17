@@ -1,3 +1,20 @@
+# [1.3.0](https://github.com/createdreamtech/carti/compare/1.2.1...1.3.0) (2021-01-17)
+
+
+### Bug Fixes
+
+* add missing integration test for get command ([c3d68cc](https://github.com/createdreamtech/carti/commit/c3d68cc307d8f10469491c55ad644f6c6ec56994))
+* refactor repo to respect relative path which also corrects ([9cbc2dc](https://github.com/createdreamtech/carti/commit/9cbc2dcd5d91ccef91a88ae5a78d0248bc219610)), closes [#12](https://github.com/createdreamtech/carti/issues/12) [#13](https://github.com/createdreamtech/carti/issues/13)
+
+
+### Features
+
+* add support for -y to auto select bundle w/o prompt ([d14610e](https://github.com/createdreamtech/carti/commit/d14610eb5a9c9d9d6c4e26932ebd6298a29cbb1d)), closes [#11](https://github.com/createdreamtech/carti/issues/11)
+* add support for auto choosing machine add ([be6a0a9](https://github.com/createdreamtech/carti/commit/be6a0a970cea6fef579688936caf634d415540a0)), closes [#11](https://github.com/createdreamtech/carti/issues/11)
+* add support for by passing prompt for install ([0d7c4ab](https://github.com/createdreamtech/carti/commit/0d7c4ab1a471622a55baea7a479b1831e7ae62b6)), closes [#11](https://github.com/createdreamtech/carti/issues/11)
+* add support for uri resolved bundling ([128ee4e](https://github.com/createdreamtech/carti/commit/128ee4e15b1e76c4fa44e8a3591d61f06253ff2f)), closes [#16](https://github.com/createdreamtech/carti/issues/16)
+* this adds get command which will return a bundle ([c4e5bc9](https://github.com/createdreamtech/carti/commit/c4e5bc947a18c327807f1d223f40180b10b79eff)), closes [#15](https://github.com/createdreamtech/carti/issues/15)
+
 ## [1.2.1](https://github.com/createdreamtech/carti/compare/1.2.0...1.2.1) (2021-01-14)
 
 
