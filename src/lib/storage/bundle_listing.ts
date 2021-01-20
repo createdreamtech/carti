@@ -21,14 +21,18 @@ export class BundleListing {
     constructor(dir: string, fileName: string) {
         this.dir = dir
         this.packageListingPath = `${dir}/${GLOBAL_PACKAGE_LISTING}`;
+
+    }
+    ensureExists(){
         //TODO check that the listing file itself is correct
-        fs.ensureDirSync(dir)
+        fs.ensureDirSync(this.packageListingPath)
         if (fs.existsSync(this.packageListingPath) === false) {
             fs.writeJSONSync(this.packageListingPath, defaultPackage)
         }
     }
     // used to add package listings from a particular origin
     async add(path: string, bundle: Bundle[]) {
+        this.ensureExists()
         const listing: Listing = await fs.readJSON(this.packageListingPath)
         listing[path] = bundle
         return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
@@ -36,12 +40,16 @@ export class BundleListing {
 
     // used to rm package listings from a particular origin
     async rm(path: string) {
+        if(!fs.existsSync(this.packageListingPath))
+            return 
         const listing: Listing = await fs.readJSON(this.packageListingPath)
         delete listing[path]
         return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
     }
 
     async getListing(): Promise<Listing> {
-        return fs.readJSON(this.packageListingPath) as Promise<Listing>
+        if(fs.existsSync(this.packageListingPath))
+            return fs.readJSON(this.packageListingPath) as Promise<Listing>
+        return {} 
     }
 }
