@@ -63,7 +63,8 @@ const testBundleCmdArgs = (dir:string)=>{
 }
 
 const testBundleCommand =(dir:string)=>{ 
-    return testUtil.createTestCommand(testBundleCmdArgs(dir), contains("bundled: dapp-test-data"))
+    return testUtil.createTestCommand(testBundleCmdArgs(dir), (res: SpawnSyncReturns<Buffer>) => { return contains("bundled: dapp-test-data")(res) 
+    })
 }
 
 const testBundleInstallArgs=(dir:string , bundleName: string) => {
@@ -180,6 +181,7 @@ describe("integration tests for cli", () => {
 
         const machineBuildCmd = testMachineBuildCommand(remoteTestEnvironment.cwd)
         const machineInstallCmd = testMachineInstallCommand(localTestEnvironment.cwd, `${remoteTestEnvironment.cwd}/carti-machine-package.json`)
+
         expect(testUtil.testCommand(localBundleCmd, localTestEnvironment)).toBe(true)
         //otherwise throws exception
         expect(testUtil.testCommand(publishBundleCmd, Object.assign({},localTestEnvironment,{input: "\r\n"}))).toBe(true)

@@ -20,10 +20,9 @@ describe("global listing ~/.carti.json", () => {
     it("should crud from a listing file in specified dir", async () => {
         const dir = fs.mkdtempSync(path.join(os.tmpdir(), 'tmp-carti-p'))
         const globalListing = new BundleListing(dir, "test-listing.json")
-        expect(fs.readdirSync(dir)[0] === "test-listing.json")
         await globalListing.add("http://fakeBundle", [mockBundle])
+        expect(fs.readdirSync(dir)[0] === "test-listing.json")
         let listing = await globalListing.getListing()
-        console.log(listing)
         expect(_.isEqual(listing["http://fakeBundle"], [mockBundle])).true
         await globalListing.rm("http://fakeBundle")
         listing = await globalListing.getListing()

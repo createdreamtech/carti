@@ -22,7 +22,7 @@ interface BundleCommand {
 }
 
 const isFilePath = (filePath: string): boolean => {
-    return fs.pathExistsSync(filePath)
+    return fs.pathExistsSync(path.resolve(filePath))
 }
 
 const downloadAsset = async (uri: string, fileName?: string): Promise<string> => {
@@ -44,7 +44,6 @@ const downloadAsset = async (uri: string, fileName?: string): Promise<string> =>
                 fullPath = await downloadAsset(response.headers['location'] as string, fileName);
             }
             else if (response.statusCode !== 200) {
-                console.log(response.statusCode)
                 reject(new Error(`Failed to get '${uri}' (${response.statusCode})`));
                 return;
             }

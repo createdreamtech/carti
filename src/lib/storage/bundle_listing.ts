@@ -23,10 +23,15 @@ export class BundleListing {
         this.packageListingPath = `${dir}/${GLOBAL_PACKAGE_LISTING}`;
 
     }
+
+    exists(){
+        return fs.existsSync(this.dir) && fs.existsSync(this.packageListingPath)
+    }
+
     ensureExists(){
         //TODO check that the listing file itself is correct
-        fs.ensureDirSync(this.packageListingPath)
-        if (fs.existsSync(this.packageListingPath) === false) {
+        if(this.exists() === false){
+            fs.ensureDirSync(this.dir)
             fs.writeJSONSync(this.packageListingPath, defaultPackage)
         }
     }
@@ -40,16 +45,14 @@ export class BundleListing {
 
     // used to rm package listings from a particular origin
     async rm(path: string) {
-        if(!fs.existsSync(this.packageListingPath))
-            return 
+        if(this.exists() === false) return 
         const listing: Listing = await fs.readJSON(this.packageListingPath)
         delete listing[path]
         return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
     }
 
     async getListing(): Promise<Listing> {
-        if(fs.existsSync(this.packageListingPath))
-            return fs.readJSON(this.packageListingPath) as Promise<Listing>
+        if(this.exists()) return fs.readJSON(this.packageListingPath) as Promise<Listing>
         return {} 
     }
 }
