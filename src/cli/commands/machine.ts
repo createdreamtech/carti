@@ -21,7 +21,7 @@ import url from "url"
 import { CID } from "multiformats";
 const rmAll = promisify(rimraf)
 
-type addMachineCommandType = "ram" | "rom" | "flashdrive" | "raw";
+type addMachineCommandType = "ram" | "rom" | "flashdrive";
 
 export const addMachineCommand = (config: Config): program.Command => {
     const add = (addType: addMachineCommandType) => {
@@ -36,7 +36,7 @@ export const addMachineCommand = (config: Config): program.Command => {
         .passCommandToAction(false)
 
     const machineAddCommand = new program.Command("add")
-        .description("Add bundle to cartesi machine description using ram | rom | flashdrive | raw options")
+        .description("Add bundle to cartesi machine description using ram | rom | flashdrive options")
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 

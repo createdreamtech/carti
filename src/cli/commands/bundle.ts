@@ -103,7 +103,7 @@ export const addBundleCommand = (): program.Command => {
         .description("Bundle data for a cartesi machine src is a url payload or filepath")
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
-        .requiredOption("-t, --type <type>", "input type of data raw|ram|rom|flashdrive")
+        .requiredOption("-t, --type <type>", "input type of data ram|rom|flashdrive")
         .requiredOption("-n, --name <name>", "name of the bundle")
         .requiredOption("-v, --version <version>", "version of the bundle")
         .requiredOption("-d, --desc <desc>", "description of the bundle")
