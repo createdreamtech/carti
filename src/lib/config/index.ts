@@ -47,6 +47,7 @@ const defaultRam: Ram = {
 }
 const defaultFlash: FlashDrive = [
     {
+        label: "root",
         cid: "default-flash",
         length: "0x3c00000",
         start: "0x8000000000000000",
