@@ -15,6 +15,8 @@ export interface Config {
     bundleListingManager: BundleManager
     repo: Repo
 }
+export const CARTI_DOCKER_PACKAGE_PATH ="/opt/carti/packages"
+
 const cartesiMachinePath = `${process.cwd()}/carti-machine-package.json`
 const bundlesPath = `${process.cwd()}/carti_bundles`
 const bundleListingFilename = ".bundles_index.json"
