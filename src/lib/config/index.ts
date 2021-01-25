@@ -6,7 +6,7 @@ import { Repo } from "../repo"
 import { fetcher } from "../fetcher";
 import { BundleManager } from "../bundle"
 import fs from "fs-extra";
-import { CartiPackage, Ram, Rom, FlashDrive } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
+import { CartiPackage, Ram, Rom, Boot, FlashDrive } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
 
 export interface Config {
     localConfigStorage: CartiConfigStorage
@@ -37,8 +37,10 @@ export const config: Config = {
 }
 const defaultRom: Rom = {
     cid: "default-rom",
-    bootargs: "console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw quiet mtdparts=flash.0:-(root)",
     resolvedPath: "/opt/cartesi/share/images/rom.bin"
+}
+const defaultBoot: Boot = {
+    args: "ls",
 }
 const defaultRam: Ram = {
     cid: "default-ram",
@@ -56,7 +58,7 @@ const defaultFlash: FlashDrive = [
     }
 ]
 export async function initMachineConfig(): Promise<void> {
-    const packageCfg = { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom }, version: "0.0.0-development", }
+    const packageCfg = { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "0.0.0-development", }
     const exists = await fs.pathExists(cartesiMachinePath)
     if (exists) {
         console.warn("Machine has already been init")
@@ -71,7 +73,7 @@ export async function getMachineConfig(): Promise<CartiPackage> {
         const configFile = await fs.readFile(cartesiMachinePath)
         return JSON.parse(configFile.toString())
     } catch (e) {
-        return { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom }, version: "", }
+        return { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "", }
     }
 }
 

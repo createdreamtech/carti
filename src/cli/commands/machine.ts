@@ -1,6 +1,6 @@
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
-import { machineConfigPackage } from "@createdreamtech/carti-core"
+import { machineConfigPackage, setPackageBoot } from "@createdreamtech/carti-core"
 import * as clib from "@createdreamtech/carti-core"
 import { Bundle, bundle, PackageEntryOptions, generateLuaConfig } from "@createdreamtech/carti-core"
 import { Config, getMachineConfig, initMachineConfig, writeMachineConfig } from "../../lib/config"
@@ -26,8 +26,8 @@ type addMachineCommandType = "ram" | "rom" | "flashdrive";
 export const addMachineCommand = (config: Config): program.Command => {
     const add = (addType: addMachineCommandType) => {
         return (name: string, options: PackageEntryOptions & {yes: boolean}) => {
-            const { length, start, bootargs, shared, yes, label,} = options
-            return handleAdd(config, name, { length, start, bootargs, shared, label }, addType, yes)
+            const { length, start, shared, yes, label,} = options
+            return handleAdd(config, name, { length, start, shared, label }, addType, yes)
         }
     }
     const machineCommand = program.command("machine")
@@ -55,6 +55,14 @@ export const addMachineCommand = (config: Config): program.Command => {
         .option("-y, --yes", "choose match without prompt")
         .description("add a bundle to the flash entry for carti-machine-package.json")
         .action(add("flashdrive"))
+    
+    machineAddCommand.command("boot <args>")
+    .description("Add boot argument for rom with default prefix or your own")
+    .usage("boot 'ls /bin'")
+    .option("-p, --prefix <prefix>", "prefix for bootargs ex. console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw quiet mtdparts=flash.0:-(root) ")
+    .action((args,options)=>{
+        return handleBoot(config, args, options.prefix)
+    })
 
     machineAddCommand.command("rom <bundle>")
         .description("add a bundle to the rom entry for carti-machine-package.json")
@@ -161,6 +169,12 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
 
 async function handleBuild(config: Config): Promise<void> {
     return buildMachine(config, await getMachineConfig())
+}
+
+async function handleBoot(config: Config, args: string, bootPrefix?: string): Promise<void> {
+    let cfg = await getMachineConfig()
+    cfg = setPackageBoot(cfg,args,bootPrefix) 
+    return writeMachineConfig(cfg)
 }
 
 async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage): Promise<void> {
