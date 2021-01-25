@@ -3,7 +3,7 @@ import { makeLogger } from "../../lib/logging"
 import { machineConfigPackage, setPackageBoot } from "@createdreamtech/carti-core"
 import * as clib from "@createdreamtech/carti-core"
 import { Bundle, bundle, PackageEntryOptions, generateLuaConfig } from "@createdreamtech/carti-core"
-import { Config, getMachineConfig, initMachineConfig, writeMachineConfig } from "../../lib/config"
+import { Config, getMachineConfig, initMachineConfig, writeMachineConfig, CARTI_DOCKER_PACKAGE_PATH } from "../../lib/config"
 import inquirer from "inquirer"
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
 import * as utils from "../util"
@@ -19,6 +19,7 @@ import { Readable } from "stream";
 import { fromStreamToStr } from "../../lib/utils";
 import url from "url"
 import { CID } from "multiformats";
+import { cwd } from "process";
 const rmAll = promisify(rimraf)
 
 type addMachineCommandType = "ram" | "rom" | "flashdrive";
@@ -58,7 +59,7 @@ export const addMachineCommand = (config: Config): program.Command => {
     
     machineAddCommand.command("boot <args>")
     .description("Add boot argument for rom with default prefix or your own")
-    .usage("boot 'ls /bin'")
+    .usage("'ls /bin'")
     .option("-p, --prefix <prefix>", "prefix for bootargs ex. console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw quiet mtdparts=flash.0:-(root) ")
     .action((args,options)=>{
         return handleBoot(config, args, options.prefix)
@@ -66,7 +67,6 @@ export const addMachineCommand = (config: Config): program.Command => {
 
     machineAddCommand.command("rom <bundle>")
         .description("add a bundle to the rom entry for carti-machine-package.json")
-        .option("-b, --bootargs <bootargs>", "boot arguments for the rom")
         .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
         .option("-y, --yes", "choose match without prompt")
         .action(add("rom"))
@@ -80,9 +80,11 @@ export const addMachineCommand = (config: Config): program.Command => {
 
     machineCommand.addCommand(machineAddCommand)
     machineCommand.command("build")
-        .description("Build a stored machine from carti-machine-package.json")
-        .action(async () => {
-            return handleBuild(config)
+        .description("Build a lua cartesi machine configuration from carti-machine-package.json")
+        .option("-d, --dir <dir>", "specify an output directory for machine-config.lua")
+        .option("-r, --runscript", "output a default lua run script")
+        .action(async (options) => {
+            return handleBuild(config, options.dir, options.runscript)
         })
 
     machineCommand.command("init")
@@ -91,8 +93,8 @@ export const addMachineCommand = (config: Config): program.Command => {
 
 
     machineCommand.command("install <uri>")
-        .description("Install a cartesi machine, installing bundles and optionally building a stored machine from a uri or file path specified carti-machine-package.json")
-        .option("--nobuild", "install remote machine bundles but do not build stored machine")
+        .description("Install a cartesi machine, installing bundles and optionally a lua cartesi machine config from a uri or file path specified carti-machine-package.json")
+        .option("--nobuild", "install remote machine bundles but does not generate a lua config")
         .action(async (uri,options) => handleInstall(config, uri,options.nobuild))
 
     return machineCommand
@@ -167,8 +169,8 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     return writeMachineConfig(cfg)
 }
 
-async function handleBuild(config: Config): Promise<void> {
-    return buildMachine(config, await getMachineConfig())
+async function handleBuild(config: Config, dir?: string, runscript?:string): Promise<void> {
+    return buildMachine(config, await getMachineConfig(), dir, runscript)
 }
 
 async function handleBoot(config: Config, args: string, bootPrefix?: string): Promise<void> {
@@ -177,16 +179,16 @@ async function handleBoot(config: Config, args: string, bootPrefix?: string): Pr
     return writeMachineConfig(cfg)
 }
 
-async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage): Promise<void> {
-    //const tmpDir = await fs.mkdtemp(`${os.tmpdir()}/carti_build_package`)
-    const tmpDir = path.resolve(await fs.mkdtemp(`carti_build_package`))
-    const machineConfig = await clib.install(cfg, config.bundleStorage, tmpDir)
+async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage, dir?:string, runscript?:string): Promise<void> {
+    //TODO add support for directly resolving carti package with contextual directory without install
+    const machineConfig = clib.createNewMachineConfig(cfg, dir || CARTI_DOCKER_PACKAGE_PATH)
     const luaConfig = generateLuaConfig(machineConfig, "return")
-    await fs.writeFile(`${tmpDir}/machine-config.lua`, luaConfig)
-    await fs.copyFile(`${__dirname}/../../scripts/run-config.lua`, `${tmpDir}/run-config.lua`)
-    await runPackageBuild(tmpDir)
-    //clean up
-    return rmAll(tmpDir)
+    if(dir)
+        await fs.ensureDir(dir)
+    const outputDir = dir || cwd()
+    await fs.writeFile(`${outputDir}/machine-config.lua`, luaConfig)
+    if(runscript)
+        await fs.copyFile(`${__dirname}/../../scripts/run-config.lua`, `${outputDir}/run-config.lua`)
 }
 
 
