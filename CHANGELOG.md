@@ -1,3 +1,19 @@
+# [1.4.0](https://github.com/createdreamtech/carti/compare/1.3.0...1.4.0) (2021-01-26)
+
+
+### Bug Fixes
+
+* correct auto creating carti_bundles behavior ([19c3390](https://github.com/createdreamtech/carti/commit/19c3390b7b30d5ba9a7c2d9beb64224b1d2649f9))
+* this removes the auto creation of bundles_json resolving ([be3a4cc](https://github.com/createdreamtech/carti/commit/be3a4cca7647ba44a4b802fffd04930a1b6b9cf3)), closes [#14](https://github.com/createdreamtech/carti/issues/14)
+
+
+### Features
+
+* add support for auto computing start and length, and setting ([cc5dd94](https://github.com/createdreamtech/carti/commit/cc5dd942919c4a9f0a2f7cf7384dd2b559637875)), closes [#17](https://github.com/createdreamtech/carti/issues/17) [#34](https://github.com/createdreamtech/carti/issues/34) [#35](https://github.com/createdreamtech/carti/issues/35)
+* add support for creating cartesi lua config ([e6cff3e](https://github.com/createdreamtech/carti/commit/e6cff3efde536c5e67e9985cb90eb72cbc0441e5)), closes [#37](https://github.com/createdreamtech/carti/issues/37) [#32](https://github.com/createdreamtech/carti/issues/32)
+* add support for machine rm ([494c0f3](https://github.com/createdreamtech/carti/commit/494c0f3358cd5db9989a55f44f2f69e6a2b09e2e)), closes [#40](https://github.com/createdreamtech/carti/issues/40)
+* add support for specifying boot args ([44e2ee6](https://github.com/createdreamtech/carti/commit/44e2ee6ba1e3fae881fc9afeeb990ac68814358e)), closes [#31](https://github.com/createdreamtech/carti/issues/31) [#33](https://github.com/createdreamtech/carti/issues/33)
+
 # [1.3.0](https://github.com/createdreamtech/carti/compare/1.2.1...1.3.0) (2021-01-17)
 
 
