@@ -110,16 +110,27 @@ const testMachineInitCommand=(dir:string, check:()=>true = ()=>true) =>{
 
 interface AddCmdOptions {
     length: string,
-    start: string
+    start: string,
+    label: string
 }
 
 const testMachineAddCmdArgs = (dir:string, bundleName: string, cmd: AddCmdOptions) => {
-    return `${cartiCmd(dir)} machine add flash ${bundleName} --start ${cmd.start} --length ${cmd.length}`
+    return `${cartiCmd(dir)} machine add flash ${bundleName} --start ${cmd.start} --length ${cmd.length} -m cool`
 }
 
 const testMachineAddCommand = (dir: string, bundleName: string, cmd: AddCmdOptions) => {
     return testUtil.createTestCommand(testMachineAddCmdArgs(dir, bundleName, cmd), () => true)
 }
+
+const testMachineRmCmdArgs = (dir:string, label:string) => {
+    return `${cartiCmd(dir)} machine rm flash ${label}`
+}
+
+const testMachineRmCommand = (dir: string, label:string) => {
+    return testUtil.createTestCommand(testMachineRmCmdArgs(dir, label), () => true)
+}
+
+
 
 const testMachineBuildArgs = (dir:string) => {
     return `${cartiCmd(dir)} machine build`
@@ -177,7 +188,9 @@ describe("integration tests for cli", () => {
             return true;
         })
         const machineAddCmd = testMachineAddCommand(remoteTestEnvironment.cwd, "dapp-test-data", 
-            { length: "0x100000", start: "0x8000000000000000" })
+            { length: "0x100000", start: "0x8000000000000000", label: "cool" })
+
+        const machineRmCmd = testMachineRmCommand(remoteTestEnvironment.cwd, "cool")
 
         const machineBuildCmd = testMachineBuildCommand(remoteTestEnvironment.cwd)
         const machineInstallCmd = testMachineInstallCommand(localTestEnvironment.cwd, `${remoteTestEnvironment.cwd}/carti-machine-package.json`)
@@ -192,7 +205,7 @@ describe("integration tests for cli", () => {
         expect(testUtil.testCommand(machineAddCmd, Object.assign({}, remoteTestEnvironment, { input: "\r\n" }))).toBe(true)
         expect(testUtil.testCommand(machineBuildCmd, remoteTestEnvironment)).toBe(true)
         expect(testUtil.testCommand(machineInstallCmd, localTestEnvironment)).toBe(true)
-
+        expect(testUtil.testCommand(machineRmCmd, Object.assign({}, remoteTestEnvironment, { input: "\r\n" }))).toBe(true)
 
     })
 
