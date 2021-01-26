@@ -1,6 +1,6 @@
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
-import { machineConfigPackage, setPackageBoot } from "@createdreamtech/carti-core"
+import { machineConfigPackage, rmPackageEntry, rmPackageEntryByLabel, setPackageBoot } from "@createdreamtech/carti-core"
 import * as clib from "@createdreamtech/carti-core"
 import { Bundle, bundle, PackageEntryOptions, generateLuaConfig } from "@createdreamtech/carti-core"
 import { Config, getMachineConfig, initMachineConfig, writeMachineConfig, CARTI_DOCKER_PACKAGE_PATH } from "../../lib/config"
@@ -35,6 +35,25 @@ export const addMachineCommand = (config: Config): program.Command => {
         .description("Utilize cartesi machine commands to specify and generate stored machines")
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
+
+    const machineRmCommand = new program.Command("rm")
+        .description("Rm bundles from cartesi machine description using ram | rom | flashdrive options")
+        .storeOptionsAsProperties(false)
+        .passCommandToAction(false)
+
+    machineRmCommand.command("ram")
+    .description("remove ram entry from machine-package")
+    .action(()=>handleRm(config,"ram"))
+
+    machineRmCommand.command("rom")
+    .description("remove rom entry from machine-package")
+    .action(()=>handleRm(config,"rom"))
+
+    machineRmCommand.command("flash <label>")
+    .description("remove flash drive entry from machine-package, must specify label")
+    .usage("mylabel")
+    .action((label)=>handleRm(config,"flashdrive", label))
+
 
     const machineAddCommand = new program.Command("add")
         .description("Add bundle to cartesi machine description using ram | rom | flashdrive options")
@@ -78,7 +97,9 @@ export const addMachineCommand = (config: Config): program.Command => {
         .action(add("raw"))
         */
 
+    
     machineCommand.addCommand(machineAddCommand)
+    machineCommand.addCommand(machineRmCommand)
     machineCommand.command("build")
         .description("Build a lua cartesi machine configuration from carti-machine-package.json")
         .option("-d, --dir <dir>", "specify an output directory for machine-config.lua")
@@ -144,6 +165,30 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean): Prom
     return buildMachine(config, packageConfig)
 }
 
+async function handleRm(config: Config, driveType: addMachineCommandType, label?:string) {
+
+    let cfg = await getMachineConfig()
+    let cid = "";
+
+    switch (driveType) {
+        case "flashdrive":
+        if(label)
+            cfg = rmPackageEntryByLabel(label, cfg) 
+        else
+            console.error("missing label, label required for flashdrive rm")
+        break
+        case "ram":
+            cid = cfg.machineConfig.rom.cid
+            cfg = rmPackageEntry({id: cid,bundleType: "ram"}, cfg)
+            break
+        case "rom":
+            cid = cfg.machineConfig.rom.cid
+            cfg = rmPackageEntry({id: cid,bundleType: "rom"}, cfg)
+            break
+    }
+
+    return writeMachineConfig(cfg)
+}
 
 async function handleAdd(config: Config, name: string, options: clib.PackageEntryOptions, addType: addMachineCommandType, yes: boolean): Promise<void> {
     const bundles: Bundle[] = await config.localConfigStorage.get(name)
