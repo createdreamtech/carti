@@ -72,25 +72,22 @@ export const config: Config = {
     repo
 }
 const defaultRom: Rom = {
-    cid: "default-rom",
-    resolvedPath: "/opt/cartesi/share/images/rom.bin"
+    cid: "baenrwigwdfweve3apyvwicc2zpmzz6vdhsg62xnmzhauruw6ud4dbbafuq"
 }
 const defaultBoot: Boot = {
     args: "ls",
 }
 const defaultRam: Ram = {
-    cid: "default-ram",
-    length: "0x4000000",
-    resolvedPath: "/opt/cartesi/share/images/linux.bin"
+    cid: "baenrwia5vqqvdu5chzjqq57tfo45z2txorpnmljeiuwemcibba43noqpvu",
+    length: "0x6a6000"
 }
 const defaultFlash: FlashDrive = [
     {
-        label: "root",
-        cid: "default-flash",
-        length: "0x3c00000",
+        cid: "baenrwig2hfjzzeqmozb7sws6tyxmyazvuipjp5hxamtllifsokwh73eucy",
         start: "0x8000000000000000",
-        shared: false,
-        resolvedPath: "/opt/cartesi/share/images/rootfs.ext2"
+        label: "root",
+        length: "0x3c00000",
+        shared: false
     }
 ]
 export async function initMachineConfig(): Promise<void> {
