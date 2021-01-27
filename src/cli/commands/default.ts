@@ -8,7 +8,7 @@ export const addDefaultsCommand = (): program.Command => {
         .description("shows some default bundle information")
         .usage("defaults")
         .action(async () => {
-            haveYouInstalledDefaultRepo()
+            haveYouInstalledDefaultRepo(true)
         })
     return machineCommand
 }

@@ -33,13 +33,13 @@ const globalLocalBundleListingPath = `${os.homedir()}/.carti/carti_bundles/.cart
 const localBundleListingPath = `${bundlesPath}/.carti`
 const bundlesJsonPath = `${process.cwd()}`
 
-export function haveYouInstalledDefaultRepo(){
+export function haveYouInstalledDefaultRepo(always:boolean = false){
     const message = `Don't forget to add the default repo!`
     const command1 = `${chalk.green("carti repo add https://github.com/createdreamtech/carti-default")}`
     const message2 = `For super ease add the defaults to global`
-    const command2 = `${chalk.blue("carti machine install -g https://raw.githubusercontent.com/createdreamtech/carti-default/main/carti-machine-package.json --nobundle --nobuild")}`
+    const command2 = `${chalk.green("carti machine install -g https://raw.githubusercontent.com/createdreamtech/carti-default/main/carti-machine-package.json --nobundle --nobuild")}`
 
-    if(fs.pathExistsSync(`${os.homedir()}/.carti`) === false){
+    if(always || fs.pathExistsSync(`${os.homedir()}/.carti`) === false){
         console.log("\n\n")
         console.log(message)
         console.log(command1)
@@ -90,8 +90,25 @@ const defaultFlash: FlashDrive = [
         shared: false
     }
 ]
+const defaultAssets = [
+    {
+        "cid": "baenrwigwdfweve3apyvwicc2zpmzz6vdhsg62xnmzhauruw6ud4dbbafuq",
+        "name": "default-rom",
+        "fileName": "rom.bin"
+      },
+      {
+        "cid": "baenrwia5vqqvdu5chzjqq57tfo45z2txorpnmljeiuwemcibba43noqpvu",
+        "name": "default-ram",
+        "fileName": "linux-5.5.19-ctsi-2.bin"
+      },
+      {
+        "cid": "baenrwig2hfjzzeqmozb7sws6tyxmyazvuipjp5hxamtllifsokwh73eucy",
+        "name": "default-root",
+        "fileName": "rootfs.ext2"
+      }
+]
 export async function initMachineConfig(): Promise<void> {
-    const packageCfg = { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "0.0.0-development", }
+    const packageCfg = { assets: defaultAssets, machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "0.0.0-development", }
     const exists = await fs.pathExists(cartesiMachinePath)
     if (exists) {
         console.warn("Machine has already been init")
