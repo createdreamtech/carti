@@ -7,6 +7,7 @@ import { fetcher } from "../fetcher";
 import { BundleManager } from "../bundle"
 import fs from "fs-extra";
 import { CartiPackage, Ram, Rom, Boot, FlashDrive } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
+import chalk from "chalk"
 
 export interface Config {
     localConfigStorage: CartiConfigStorage
@@ -32,6 +33,23 @@ const globalLocalBundleListingPath = `${os.homedir()}/.carti/carti_bundles/.cart
 const localBundleListingPath = `${bundlesPath}/.carti`
 const bundlesJsonPath = `${process.cwd()}`
 
+export function haveYouInstalledDefaultRepo(){
+    const message = `Don't forget to add the default repo!`
+    const command1 = `${chalk.green("carti repo add https://github.com/createdreamtech/carti-default")}`
+    const message2 = `For super ease add the defaults to global`
+    const command2 = `${chalk.blue("carti machine install -g https://raw.githubusercontent.com/createdreamtech/carti-default/main/carti-machine-package.json --nobundle --nobuild")}`
+
+    if(fs.pathExistsSync(`${os.homedir()}/.carti`) === false){
+        console.log("\n\n")
+        console.log(message)
+        console.log(command1)
+        console.log(message2)
+        console.log(command2)
+        console.log("\n\n")
+    }
+    
+}
+
 // builds an index to keep track of how to resolve things that are installed locally 
 const localConfigStorage = new CartiConfigStorage(localBundleListingPath, bundleListingFilename)
 // builds an index to keep track of how to resolve things that are installed globally
@@ -54,25 +72,22 @@ export const config: Config = {
     repo
 }
 const defaultRom: Rom = {
-    cid: "default-rom",
-    resolvedPath: "/opt/cartesi/share/images/rom.bin"
+    cid: "baenrwigwdfweve3apyvwicc2zpmzz6vdhsg62xnmzhauruw6ud4dbbafuq"
 }
 const defaultBoot: Boot = {
     args: "ls",
 }
 const defaultRam: Ram = {
-    cid: "default-ram",
-    length: "0x4000000",
-    resolvedPath: "/opt/cartesi/share/images/linux.bin"
+    cid: "baenrwia5vqqvdu5chzjqq57tfo45z2txorpnmljeiuwemcibba43noqpvu",
+    length: "0x6a6000"
 }
 const defaultFlash: FlashDrive = [
     {
-        label: "root",
-        cid: "default-flash",
-        length: "0x3c00000",
+        cid: "baenrwig2hfjzzeqmozb7sws6tyxmyazvuipjp5hxamtllifsokwh73eucy",
         start: "0x8000000000000000",
-        shared: false,
-        resolvedPath: "/opt/cartesi/share/images/rootfs.ext2"
+        label: "root",
+        length: "0x3c00000",
+        shared: false
     }
 ]
 export async function initMachineConfig(): Promise<void> {
