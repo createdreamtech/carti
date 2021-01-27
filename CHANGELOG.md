@@ -1,3 +1,12 @@
+## [1.5.2](https://github.com/createdreamtech/carti/compare/1.5.1...1.5.2) (2021-01-27)
+
+
+### Bug Fixes
+
+* add version and defaults command, with messaging cleanup ([c5e5abd](https://github.com/createdreamtech/carti/commit/c5e5abd2beab7d9e93bec4f0b256d58f31fbff14))
+* change defaults to use bundle system ([bc18cb9](https://github.com/createdreamtech/carti/commit/bc18cb9589afd95e35308af9796149a0e254f3b5)), closes [#36](https://github.com/createdreamtech/carti/issues/36)
+* temp. disable stdout check spawn sync issues refactor at later date ([efc5efb](https://github.com/createdreamtech/carti/commit/efc5efb866df3a27d4364c167a56276f3541ab69))
+
 ## [1.5.1](https://github.com/createdreamtech/carti/compare/1.5.0...1.5.1) (2021-01-27)
 
 
