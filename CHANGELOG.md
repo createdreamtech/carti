@@ -1,3 +1,11 @@
+## [1.5.3](https://github.com/createdreamtech/carti/compare/1.5.2...1.5.3) (2021-01-27)
+
+
+### Bug Fixes
+
+* defaults to output whenever called ([c66e269](https://github.com/createdreamtech/carti/commit/c66e2694e6664379ad3ed26799c331734901a187))
+* missing default assets for cartesi machine ([e7d1960](https://github.com/createdreamtech/carti/commit/e7d196082a71ce9ac1042f5f24f3151e27ee3b35))
+
 ## [1.5.2](https://github.com/createdreamtech/carti/compare/1.5.1...1.5.2) (2021-01-27)
 
 
