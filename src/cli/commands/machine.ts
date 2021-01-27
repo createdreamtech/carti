@@ -8,7 +8,7 @@ import inquirer from "inquirer"
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
 import * as utils from "../util"
 import os from "os"
-import https from "https"
+import { https } from "follow-redirects"
 import fs from "fs-extra"
 import { spawnSync } from "child_process";
 import path from "path"
@@ -138,9 +138,12 @@ async function getPackageFile(uri: string): Promise<Readable> {
     if (url.parse(uri).protocol === null)
         return fs.createReadStream(path.resolve(uri))
 
-    return new Promise((resolve) => {
-        https.get(uri, (message) => {
-            resolve(message)
+    return new Promise((resolve, reject) => {
+        https.get(uri, (response) => {
+            if(!response || response.statusCode! >= 400){
+                reject(new Error(`Could not process package file from ${uri}`))
+            }
+            resolve(response)
         })
     })
 }
