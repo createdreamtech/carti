@@ -6,7 +6,7 @@ import { CID } from "multiformats"
 import { config } from "../../lib/config"
 import fs from "fs-extra";
 import os from "os";
-import https from "https"
+import { https } from "follow-redirects"
 
 const bundler = cartiLib.bundle
 const logger = makeLogger("Bundle Command")
@@ -41,13 +41,15 @@ const downloadAsset = async (uri: string, fileName?: string): Promise<string> =>
         let fullPath: string;
         https.get(uri, async (response) => {
 
-            if (response.statusCode == 302) {
+            /*if (response.statusCode === 302) {
                 fullPath = await downloadAsset(response.headers['location'] as string, fileName);
-            }
-            else if (response.statusCode !== 200) {
+            }*/
+           if (response.statusCode! >= 400) {
                 reject(new Error(`Failed to get '${uri}' (${response.statusCode})`));
                 return;
+
             }
+            
             
             response.headers['']
             const f = fileName || parseFilename(response.headers['content-disposition'])
