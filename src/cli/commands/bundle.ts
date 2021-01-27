@@ -19,6 +19,7 @@ interface BundleCommand {
     desc: string
     version: string
     filename?: string
+    global?: boolean
 }
 
 const isFilePath = (filePath: string): boolean => {
@@ -75,26 +76,28 @@ const downloadAsset = async (uri: string, fileName?: string): Promise<string> =>
 
 const handleBundleCommand = async (bundleUri: string, bundle: BundleCommand) => {
     const { name, type, desc, version, filename } = bundle;
-    const { bundleStorage, localConfigStorage } = config
+    const { bundleStorage, localConfigStorage, globalLocalConfigStorage } = config
     let bundlePath = bundleUri
     let shouldClean = false;
     if (isFilePath(bundleUri) === false) {
         bundlePath = await downloadAsset(bundleUri, filename)
         shouldClean = true;
     }
+    const configStorage = bundle.global ? globalLocalConfigStorage : localConfigStorage
+    const bStorage = bundle.global ? bundleStorage.global : bundleStorage.local
     const bun = await bundler.bundle({
         bundleType: type,
         name,
         fileName: path.basename(bundlePath),
         path: path.resolve(bundlePath),
         version,
-    }, bundleStorage)
+    }, bStorage)
     if(shouldClean){
         await fs.remove(bundlePath)
     }
-    const bPath = await bundleStorage.path(CID.parse(bun.id))
+    const bPath = await bStorage.path(CID.parse(bun.id))
     const bundles = [Object.assign({}, bun, { uri: bPath })]
-    await localConfigStorage.add(bPath, bundles)
+    await configStorage.add(bPath, bundles)
     console.log(`bundled: ${name} as ${bun.id}`)
 }
 
@@ -108,5 +111,9 @@ export const addBundleCommand = (): program.Command => {
         .requiredOption("-v, --version <version>", "version of the bundle")
         .requiredOption("-d, --desc <desc>", "description of the bundle")
         .option("-f, --filename [name]", "name of the bundle")
+        // NOTE global is supported but will not be implemented yet because it helps to have boundaries
+        // to reduce complexity of what's publishable, this also makes almost everything global released
+        // "aka not a development bundle"
+        //.option("-g, --global", "bundle into the global storage path")
         .action(handleBundleCommand)
 }

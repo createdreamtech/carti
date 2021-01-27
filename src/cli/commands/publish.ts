@@ -49,6 +49,8 @@ const renderBundle = (b: Bundle): string => {
     return shortDesc({ bundleType, name, version, id, uri: "local" })
 }
 
+// handlePublish has the restriction that you can only ever publish locally installed bundles publishing of global bundles are not allowed
+// it feels like too much flexibility if we do not initially have some artifical restrictions on behavior
 async function handlePublish(config: Config, name: string, storage: Storage, yes: boolean, uri?: string, nosave?: boolean): Promise<void> {
     const bundles: Bundle[] = await config.localConfigStorage.get(name)
     let bundle = bundles[0]
@@ -62,7 +64,7 @@ async function handlePublish(config: Config, name: string, storage: Storage, yes
     if (nosave) {
         return config.bundleListingManager.addBundle(bundleWithNewUri)
     }
-    const localPath = await config.bundleStorage.path(CID.parse(bundle.id))
+    const localPath = (await config.bundleStorage.path(CID.parse(bundle.id))).local
     const bundleWithPath = Object.assign({}, bundleWithNewUri, { path: localPath as string})
     const bun = await clib.bundle.bundle(bundleWithPath as bundle.BundleMeta, storage)
     bun.uri = uri
