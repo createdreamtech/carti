@@ -1,3 +1,10 @@
+# [1.5.0](https://github.com/createdreamtech/carti/compare/1.4.0...1.5.0) (2021-01-27)
+
+
+### Features
+
+* add global storage to carti ([7b49d23](https://github.com/createdreamtech/carti/commit/7b49d23b22004526d82824bbf2834763efbdd256))
+
 # [1.4.0](https://github.com/createdreamtech/carti/compare/1.3.0...1.4.0) (2021-01-26)
 
 
