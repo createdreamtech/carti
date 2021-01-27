@@ -1,3 +1,10 @@
+## [1.5.4](https://github.com/createdreamtech/carti/compare/1.5.3...1.5.4) (2021-01-27)
+
+
+### Bug Fixes
+
+* multiple asset resolution machine bug ([95c4f25](https://github.com/createdreamtech/carti/commit/95c4f25ce062dab0a4ee51c25b4d11b11ccb3c76))
+
 ## [1.5.3](https://github.com/createdreamtech/carti/compare/1.5.2...1.5.3) (2021-01-27)
 
 
