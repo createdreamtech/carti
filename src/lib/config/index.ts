@@ -7,6 +7,7 @@ import { fetcher } from "../fetcher";
 import { BundleManager } from "../bundle"
 import fs from "fs-extra";
 import { CartiPackage, Ram, Rom, Boot, FlashDrive } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
+import chalk from "chalk"
 
 export interface Config {
     localConfigStorage: CartiConfigStorage
@@ -31,6 +32,23 @@ const globalBundleListingPath = `${os.homedir()}/.carti`
 const globalLocalBundleListingPath = `${os.homedir()}/.carti/carti_bundles/.carti-disk`
 const localBundleListingPath = `${bundlesPath}/.carti`
 const bundlesJsonPath = `${process.cwd()}`
+
+export function haveYouInstalledDefaultRepo(){
+    const message = `Don't forget to add the default repo!`
+    const command1 = `${chalk.green("carti repo add https://github.com/createdreamtech/carti-default")}`
+    const message2 = `For super ease add the defaults to global`
+    const command2 = `${chalk.blue("carti machine install -g https://raw.githubusercontent.com/createdreamtech/carti-default/main/carti-machine-package.json --nobundle --nobuild")}`
+
+    if(fs.pathExistsSync(`${os.homedir()}/.carti`) === false){
+        console.log("\n\n")
+        console.log(message)
+        console.log(command1)
+        console.log(message2)
+        console.log(command2)
+        console.log("\n\n")
+    }
+    
+}
 
 // builds an index to keep track of how to resolve things that are installed locally 
 const localConfigStorage = new CartiConfigStorage(localBundleListingPath, bundleListingFilename)

@@ -5,7 +5,7 @@ import { makeLogger } from "../lib/logging";
 import _ from "lodash";
 import * as commands from "./commands"
 
-import { config } from "../lib/config"
+import { config, haveYouInstalledDefaultRepo } from "../lib/config"
 const logger = makeLogger("cli");
 
 commands.addBundleCommand()
@@ -16,7 +16,8 @@ commands.addRepoCommand(config.repo)
 commands.addListCommand(config)
 commands.addWhichCommand(config)
 commands.addGetCommand(config)
-
+commands.addDefaultsCommand()
+haveYouInstalledDefaultRepo()
 program
-  //.version(version, "-v, --version")
+  .version(version, "-v, --version")
   .parse(process.argv);

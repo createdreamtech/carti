@@ -6,4 +6,5 @@ export { addMachineCommand } from "./machine";
 export { addListCommand } from "./list";
 export { addWhichCommand } from "./which";
 export { addGetCommand } from "./get";
+export { addDefaultsCommand } from "./default";
 
