@@ -1,3 +1,10 @@
+## [1.5.1](https://github.com/createdreamtech/carti/compare/1.5.0...1.5.1) (2021-01-27)
+
+
+### Bug Fixes
+
+* patch https to follow redirects properly ([29048c3](https://github.com/createdreamtech/carti/commit/29048c325164bf75a10ebe8830bbabfda5832f66))
+
 # [1.5.0](https://github.com/createdreamtech/carti/compare/1.4.0...1.5.0) (2021-01-27)
 
 
