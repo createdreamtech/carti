@@ -151,6 +151,7 @@ async function getPackageFile(uri: string): Promise<Readable> {
 
 async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, global?: boolean): Promise<void> {
     //TODO add error handling here
+    console.log("handle installl")
     if(nobundleDir === false) await fs.ensureDir(CARTI_BUILD_BUNDLES_PATH)
     const packageStorage = new CartiBundleStorage(CARTI_BUILD_BUNDLES_PATH) 
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
@@ -167,7 +168,7 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
             if (localExists) await bundle.install(bundles[0], config.bundleStorage.local, packageStorage)
         }
         if (localExists || globalExists)
-            break
+            continue
         const bundleStorage = global ? config.bundleStorage.global : config.bundleStorage.local
         const configStorage = global ? config.globalLocalConfigStorage : config.localConfigStorage
         await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), bundleStorage)
