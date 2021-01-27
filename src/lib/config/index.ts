@@ -90,8 +90,25 @@ const defaultFlash: FlashDrive = [
         shared: false
     }
 ]
+const defaultAssets = [
+    {
+        "cid": "baenrwigwdfweve3apyvwicc2zpmzz6vdhsg62xnmzhauruw6ud4dbbafuq",
+        "name": "default-rom",
+        "fileName": "rom.bin"
+      },
+      {
+        "cid": "baenrwia5vqqvdu5chzjqq57tfo45z2txorpnmljeiuwemcibba43noqpvu",
+        "name": "default-ram",
+        "fileName": "linux-5.5.19-ctsi-2.bin"
+      },
+      {
+        "cid": "baenrwig2hfjzzeqmozb7sws6tyxmyazvuipjp5hxamtllifsokwh73eucy",
+        "name": "default-root",
+        "fileName": "rootfs.ext2"
+      }
+]
 export async function initMachineConfig(): Promise<void> {
-    const packageCfg = { assets: [], machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "0.0.0-development", }
+    const packageCfg = { assets: defaultAssets, machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "0.0.0-development", }
     const exists = await fs.pathExists(cartesiMachinePath)
     if (exists) {
         console.warn("Machine has already been init")
