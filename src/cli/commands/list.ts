@@ -25,15 +25,18 @@ const renderBundle = (b: Bundle, uri: string): string => {
 
 async function handleList(config: Config, all:boolean): Promise<void> {
     let localList = await config.localConfigStorage.listing();
-    let globalList:Listing = {}; 
+    let globalList = await config.globalLocalConfigStorage.listing();
+    let uninstalledList:Listing = {}; 
     if(all)
-        globalList = await config.globalConfigStorage.listing()
+        uninstalledList = await config.globalConfigStorage.listing()
     const renderList = (list: Listing, uriType?: string): string[] => {
         let descs: string[] = []
         Object.keys(list).forEach((key: string) => {
-            descs = descs.concat(list[key].map((b: Bundle) => renderBundle(b, uriType || b.uri || 'global')))
+            descs = descs.concat(list[key].map((b: Bundle) => renderBundle(b, uriType || b.uri || 'uninstalled')))
         })
         return descs
     }
-    console.log(renderList(localList,'local').concat(renderList(globalList)).join('\r\n'))
+    console.log(renderList(localList,'local')
+        .concat(renderList(globalList, 'global'))
+        .concat(renderList(uninstalledList)).join('\r\n'))
 }

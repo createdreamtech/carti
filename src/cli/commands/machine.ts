@@ -3,7 +3,7 @@ import { makeLogger } from "../../lib/logging"
 import { machineConfigPackage, rmPackageEntry, rmPackageEntryByLabel, setPackageBoot } from "@createdreamtech/carti-core"
 import * as clib from "@createdreamtech/carti-core"
 import { Bundle, bundle, PackageEntryOptions, generateLuaConfig } from "@createdreamtech/carti-core"
-import { Config, getMachineConfig, initMachineConfig, writeMachineConfig, CARTI_DOCKER_PACKAGE_PATH } from "../../lib/config"
+import { Config, getMachineConfig, initMachineConfig, writeMachineConfig, CARTI_DOCKER_PACKAGE_PATH, CARTI_BUILD_BUNDLES_PATH } from "../../lib/config"
 import inquirer from "inquirer"
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
 import * as utils from "../util"
@@ -20,6 +20,7 @@ import { fromStreamToStr } from "../../lib/utils";
 import url from "url"
 import { CID } from "multiformats";
 import { cwd } from "process";
+import { CartiBundleStorage } from "../../lib/storage/carti_bundles";
 const rmAll = promisify(rimraf)
 
 type addMachineCommandType = "ram" | "rom" | "flashdrive";
@@ -116,7 +117,9 @@ export const addMachineCommand = (config: Config): program.Command => {
     machineCommand.command("install <uri>")
         .description("Install a cartesi machine, installing bundles and optionally a lua cartesi machine config from a uri or file path specified carti-machine-package.json")
         .option("--nobuild", "install remote machine bundles but does not generate a lua config")
-        .action(async (uri,options) => handleInstall(config, uri,options.nobuild))
+        .option("--nobundle", "do not output machine bundles into a single mountable build location")
+        .option("-g, --global", "install all bundles into global location")
+        .action(async (uri,options) => handleInstall(config, uri,options.nobuild,options.nobundle || false,options.global))
 
     return machineCommand
 }
@@ -124,7 +127,7 @@ export const addMachineCommand = (config: Config): program.Command => {
 
 const renderBundle = (b: Bundle): string => {
     const { bundleType, name, version, id } = b;
-    return shortDesc({ bundleType, name, version, id, uri: "local" })
+    return shortDesc({ bundleType, name, version, id, uri: "installed" })
 }
 
 async function handleInit() {
@@ -143,25 +146,36 @@ async function getPackageFile(uri: string): Promise<Readable> {
 }
 
 
-async function handleInstall(config: Config, uri: string, nobuild:boolean): Promise<void> {
+async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, global?: boolean): Promise<void> {
     //TODO add error handling here
+    console.log(nobundleDir)
+    if(nobundleDir === false) await fs.ensureDir(CARTI_BUILD_BUNDLES_PATH)
+    const packageStorage = new CartiBundleStorage(CARTI_BUILD_BUNDLES_PATH) 
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
     //check packages can all be resolved
-
     for (const asset of packageConfig.assets) {
         const bundles = await config.globalConfigStorage.getById(asset.cid)
         if (bundles === [] || bundles === undefined)
             throw new Error(`Could not resolve bundle for id:${asset.cid} name:${asset.name} try adding the repo`)
-        const exists = await config.bundleStorage.diskProvider.exists(CID.parse(asset.cid))
-        if (exists)
+        const localExists = await config.bundleStorage.local.diskProvider.exists(CID.parse(asset.cid))
+        const globalExists = await config.bundleStorage.global.diskProvider.exists(CID.parse(asset.cid))
+        // write to the build store if the option is not disabled 
+        if (nobundleDir === false) {
+            if (globalExists) await bundle.install(bundles[0], config.bundleStorage.global, packageStorage)
+            if (localExists) await bundle.install(bundles[0], config.bundleStorage.local, packageStorage)
+        }
+        if (localExists || globalExists)
             break
-        await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), config.bundleStorage)
-        const path = await config.bundleStorage.path(CID.parse(bundles[0].id))
-        await config.localConfigStorage.add(path, [bundles[0]])
+        const bundleStorage = global ? config.bundleStorage.global : config.bundleStorage.local
+        const configStorage = global ? config.globalLocalConfigStorage : config.localConfigStorage
+        await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), bundleStorage)
+        //if you create a built bundles directory then write fetched bundles into the shared store
+        if(nobundleDir === false) await bundle.install(bundles[0], bundleStorage, packageStorage)
+        const path = await bundleStorage.path(CID.parse(bundles[0].id))
+        await configStorage.add(path, [bundles[0]])
     }
     if(nobuild)
         return 
-
     return buildMachine(config, packageConfig)
 }
 
@@ -191,7 +205,8 @@ async function handleRm(config: Config, driveType: addMachineCommandType, label?
 }
 
 async function handleAdd(config: Config, name: string, options: clib.PackageEntryOptions, addType: addMachineCommandType, yes: boolean): Promise<void> {
-    const bundles: Bundle[] = await config.localConfigStorage.get(name)
+    let bundles: Bundle[] = await config.localConfigStorage.get(name)
+    bundles = bundles.concat(await config.globalLocalConfigStorage.get(name))
     let bundle = bundles[0];
     if (!yes) {
         const question = utils.pickBundle("Which bundle would you like to add to your cartesi machine build", bundles, renderBundle)
@@ -225,7 +240,6 @@ async function handleBoot(config: Config, args: string, bootPrefix?: string): Pr
 }
 
 async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage, dir?:string, runscript?:string): Promise<void> {
-    //TODO add support for directly resolving carti package with contextual directory without install
     const machineConfig = clib.createNewMachineConfig(cfg, dir || CARTI_DOCKER_PACKAGE_PATH)
     const luaConfig = generateLuaConfig(machineConfig, "return")
     if(dir)

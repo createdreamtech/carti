@@ -4,6 +4,7 @@ import { Bundle } from "@createdreamtech/carti-core"
 import { Config } from "../../lib/config"
 import { CID } from "multiformats";
 import chalk from "chalk";
+import { CartiBundleStorage } from "../../lib/storage/carti_bundles";
 
 
 export const addWhichCommand = (config: Config): program.Command => {
@@ -23,9 +24,15 @@ const renderBundle = (b: Bundle, path:string): string => {
 }
 
 async function handleWhich(config: Config, name:string): Promise<void> {
-    const bundles = await config.localConfigStorage.get(name)
-    for (const bun of bundles){
-        const path =  await config.bundleStorage.path(CID.parse(bun.id))
-        console.log(renderBundle(bun,path))
+    let localBundles = await config.localConfigStorage.get(name)
+    let globalBundles = await config.globalLocalConfigStorage.get(name)
+    const showBundles = async (bundles: Bundle[], storage: CartiBundleStorage) => {
+        for (const bun of bundles) {
+            const path = await storage.path(CID.parse(bun.id))
+            console.log(renderBundle(bun, path))
+        }
     }
+    await showBundles(localBundles, config.bundleStorage.local)
+    await showBundles(globalBundles, config.bundleStorage.global)
+    return
 }

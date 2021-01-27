@@ -1,7 +1,7 @@
 import process from "process"
 import os from "os"
 import { CartiConfigStorage } from "../storage"
-import { CartiBundleStorage } from "../storage/carti_bundles"
+import { CartiBundleStorage, CartiBundleStorageSystem } from "../storage/carti_bundles"
 import { Repo } from "../repo"
 import { fetcher } from "../fetcher";
 import { BundleManager } from "../bundle"
@@ -10,28 +10,44 @@ import { CartiPackage, Ram, Rom, Boot, FlashDrive } from "@createdreamtech/carti
 
 export interface Config {
     localConfigStorage: CartiConfigStorage
+    // globalLocalConfigStorage is configuration storage for bundles installed into the global path
+    // it differs from globalConfigStorage, as it is used to resolve remote dependencies off disk
+    // these can be unified, but could be more difficult to resolve. making this separate preserves the semantics 
+    globalLocalConfigStorage: CartiConfigStorage
     globalConfigStorage: CartiConfigStorage
-    bundleStorage: CartiBundleStorage
+    bundleStorage: CartiBundleStorageSystem
     bundleListingManager: BundleManager
     repo: Repo
 }
 export const CARTI_DOCKER_PACKAGE_PATH ="/opt/carti/packages"
+export const CARTI_BUILD_PATH = `${process.cwd()}/carti_build`
+export const CARTI_BUILD_BUNDLES_PATH = `${CARTI_BUILD_PATH}/bundles`
 
 const cartesiMachinePath = `${process.cwd()}/carti-machine-package.json`
 const bundlesPath = `${process.cwd()}/carti_bundles`
+const globalBundlesPath = `${os.homedir()}/.carti/carti_bundles`
 const bundleListingFilename = ".bundles_index.json"
 const globalBundleListingPath = `${os.homedir()}/.carti`
+const globalLocalBundleListingPath = `${os.homedir()}/.carti/carti_bundles/.carti-disk`
 const localBundleListingPath = `${bundlesPath}/.carti`
 const bundlesJsonPath = `${process.cwd()}`
 
+// builds an index to keep track of how to resolve things that are installed locally 
 const localConfigStorage = new CartiConfigStorage(localBundleListingPath, bundleListingFilename)
+// builds an index to keep track of how to resolve things that are installed globally
+const globalLocalConfigStorage = new CartiConfigStorage(globalLocalBundleListingPath, bundleListingFilename)
+
+// builds an index to keep track of how to resolve things that are not installed but remote 
 const globalConfigStorage = new CartiConfigStorage(globalBundleListingPath, bundleListingFilename)
-const bundleStorage = new CartiBundleStorage(bundlesPath)
+const bundleStorage = new CartiBundleStorageSystem(
+    new CartiBundleStorage(globalBundlesPath),
+    new CartiBundleStorage(bundlesPath)) 
 const repo = new Repo(globalConfigStorage, fetcher)
 const bundleListingManager = new BundleManager(bundlesJsonPath)
 
 export const config: Config = {
     localConfigStorage,
+    globalLocalConfigStorage,
     globalConfigStorage,
     bundleStorage,
     bundleListingManager,

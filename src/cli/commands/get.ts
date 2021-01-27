@@ -13,8 +13,9 @@ export const addGetCommand = (config: Config): program.Command => {
         .usage("get <name>")
         .option("-y, --yes", "choose first match")
         .option("-p, --path", "only return path information")
+        .option("-g, --global", "install bundle into global location")
         .action(async (name, options) => {
-            return handleGet(config, name, options.yes, options.path)
+            return handleGet(config, name, options.yes, options.path, options.global)
         })
     return machineCommand
 }
@@ -25,19 +26,23 @@ const renderBundle = (b: Bundle, path:string): string => {
     return `${name}:${id}:${version}:${chalk.green(path)}`
 }
 
-async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boolean): Promise<void> {
+async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boolean, global?: boolean): Promise<void> {
     let bundles = await config.localConfigStorage.get(name)
+    bundles = bundles.concat(await config.globalLocalConfigStorage.get(name))
     let bun = bundles[0]
     const render = async (b:Bundle) =>{
-        const path = await config.bundleStorage.path(CID.parse(b.id))
+        const bundleId = CID.parse(b.id)
+        const lExists = await config.bundleStorage.local.diskProvider.exists(bundleId)
+        const bPath = await config.bundleStorage.path(bundleId)
+        const path = lExists? bPath.local! : bPath.global! 
         if(pathOnly){
             console.log(path)
             return
         }
-        console.log(renderBundle(b,path))
+        console.log(renderBundle(b,path!))
     }
     if(bundles.length === 0){
-        bun = await handleInstall(config,name,yes)
+        bun = await handleInstall(config, name, yes, global)
         render(bun)
         return
     }
