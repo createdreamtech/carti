@@ -151,7 +151,6 @@ async function getPackageFile(uri: string): Promise<Readable> {
 
 async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, global?: boolean): Promise<void> {
     //TODO add error handling here
-    console.log("handle installl")
     if(nobundleDir === false) await fs.ensureDir(CARTI_BUILD_BUNDLES_PATH)
     const packageStorage = new CartiBundleStorage(CARTI_BUILD_BUNDLES_PATH) 
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
