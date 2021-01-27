@@ -48,7 +48,7 @@
   },
   "dependencies": {
     "@createdreamtech/carti": "^1.5.4",
-    "@createdreamtech/carti-core": "^1.6.1",
+    "@createdreamtech/carti-core": "^1.6.2",
     "@ipld/dag-cbor": "^2.0.2",
     "@octokit/rest": "^18.0.12",
     "@types/commander": "^2.12.2",
