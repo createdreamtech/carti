@@ -33,13 +33,13 @@ const globalLocalBundleListingPath = `${os.homedir()}/.carti/carti_bundles/.cart
 const localBundleListingPath = `${bundlesPath}/.carti`
 const bundlesJsonPath = `${process.cwd()}`
 
-export function haveYouInstalledDefaultRepo(){
+export function haveYouInstalledDefaultRepo(always:boolean = false){
     const message = `Don't forget to add the default repo!`
     const command1 = `${chalk.green("carti repo add https://github.com/createdreamtech/carti-default")}`
     const message2 = `For super ease add the defaults to global`
-    const command2 = `${chalk.blue("carti machine install -g https://raw.githubusercontent.com/createdreamtech/carti-default/main/carti-machine-package.json --nobundle --nobuild")}`
+    const command2 = `${chalk.green("carti machine install -g https://raw.githubusercontent.com/createdreamtech/carti-default/main/carti-machine-package.json --nobundle --nobuild")}`
 
-    if(fs.pathExistsSync(`${os.homedir()}/.carti`) === false){
+    if(always || fs.pathExistsSync(`${os.homedir()}/.carti`) === false){
         console.log("\n\n")
         console.log(message)
         console.log(command1)
