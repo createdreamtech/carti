@@ -294,8 +294,11 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     }
     let cfg = await getMachineConfig()
     // Note equivalent to lua config https://github.com/cartesi/machine-emulator/blob/master/src/cartesi-machine.lua#L638
-    if(addType === "flashdrive")
-        options.length = options.length || `0x${BigInt(fs.statSync(bundle.fileName).size).toString(16)}` 
+    if(addType === "flashdrive"){
+        const pth = await config.bundleStorage.path(CID.parse(bundle.id))
+        const filePath = fs.pathExistsSync(pth.local!) ?  pth.local : pth.global
+        options.length = options.length || `0x${BigInt(fs.statSync(`${filePath}`).size).toString(16)}` 
+    }
     // Note ram default size is 64 << 20 https://github.com/cartesi/machine-emulator/blob/master/src/cartesi-machine.lua#L209
     if(addType === "ram")
         options.length = options.length || `0x${(BigInt(64)<< BigInt(20)).toString(16)}`
