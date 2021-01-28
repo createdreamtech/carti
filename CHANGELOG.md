@@ -1,3 +1,12 @@
+## [1.5.5](https://github.com/createdreamtech/carti/compare/1.5.4...1.5.5) (2021-01-28)
+
+
+### Bug Fixes
+
+* corrects version command conflict with bundles ([08d849f](https://github.com/createdreamtech/carti/commit/08d849ff9e7d6245a51d61befbd71ab0013c8fd3))
+* missing version bump for redirect enabling ([68d7de0](https://github.com/createdreamtech/carti/commit/68d7de0c7cf3b9195ad7749c7cd95c045c878eb4))
+* quite output and pull in redirect request fix from upstream ([a7e8cc4](https://github.com/createdreamtech/carti/commit/a7e8cc4236cd7cee17ceb8cda4bdb39facce9588))
+
 ## [1.5.4](https://github.com/createdreamtech/carti/compare/1.5.3...1.5.4) (2021-01-27)
 
 
