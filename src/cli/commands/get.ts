@@ -27,15 +27,32 @@ const renderBundle = (b: Bundle, path:string): string => {
     return `${name}:${id}:${version}:${chalk.green(path)}`
 }
 
+const dedup = (buns: Bundle[]) => {
+    const lookup: any = {}
+    const acc: Bundle[] = []
+    buns.forEach((b) => {
+        if (!lookup[b.id]) {
+            acc.push(b)
+            lookup[b.id] = true
+        }
+    })
+    return acc;
+}
+// handleGet the logic here will cause the commandline to search the global space if global is specified, 
+// otherwise the logic will simply try and resolve the bundle anyway it can (global or local space) and install the data locally 
+// if it's not found in either. This differs from --global , which will try and install any missing bundle to the global space
 async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boolean, global?: boolean): Promise<void> {
-    let bundles = await config.localConfigStorage.get(name)
-    bundles = bundles.concat(await config.globalLocalConfigStorage.get(name))
+    const localBundles = await config.localConfigStorage.get(name)
+    const globalBundles = await config.globalLocalConfigStorage.get(name)
+    let bundles = global ? globalBundles : localBundles.concat(globalBundles)
+    bundles = dedup(bundles)
+   
     let bun = bundles[0]
     const render = async (b:Bundle) =>{
         const bundleId = CID.parse(b.id)
         const lExists = await config.bundleStorage.local.diskProvider.exists(bundleId)
         const bPath = await config.bundleStorage.path(bundleId)
-        const path = lExists? bPath.local! : bPath.global! 
+        const path = global ? bPath.global! : lExists ? bPath.local! : bPath.global! 
         if(pathOnly){
             console.log(path)
             return
