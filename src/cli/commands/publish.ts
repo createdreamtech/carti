@@ -8,6 +8,7 @@ import * as utils from "../util"
 import path from "path";
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
 import { CID } from "multiformats";
+import { commandHandler } from "./command_util";
 
 const logger = makeLogger("Publish Command")
 
@@ -21,7 +22,7 @@ export const addPublishCommand = (config: Config): program.Command => {
         .option("--nosave", "don't upload to s3")
         .requiredOption("--bucket <bucket>", "Name of the s3 bucket to upload to")
         .action(async (bundleName, uri, options) => {
-            await handlePublish(config, bundleName, new Storage(new S3Provider(options.bucket)), options.yes, uri, options.nosave)
+            await commandHandler(handlePublish, config, bundleName, new Storage(new S3Provider(options.bucket)), options.yes, uri, options.nosave)
             console.log(`published to s3:${options.bucket}`)
         })
     publishCommand.command("disk <src> <path>")
@@ -30,14 +31,14 @@ export const addPublishCommand = (config: Config): program.Command => {
         .option("--nosave", "don't add to disk")
         .action(async (src, pth, options) => {
             const absPath = path.resolve(pth)
-            await handlePublish(config, src, new Storage(new DiskProvider(absPath)), options.yes, absPath, options.nosave)
+            await commandHandler(handlePublish, config, src, new Storage(new DiskProvider(absPath)), options.yes, absPath, options.nosave)
             console.log(`published to path:${absPath}`)
         })
     publishCommand.command("uri <bundle> <uri>")
         .description("Just takes a bundle name and uri/abspath adds to bundles.json w/o uploading")
         .option("-y, --yes", "choose match without prompt")
         .action(async (bundle, uri, options) => {
-            await handlePublish(config, bundle, new Storage(new MemoryProvider()), options.yes, uri, true)
+            await commandHandler(handlePublish, config, bundle, new Storage(new MemoryProvider()), options.yes, uri, true)
             console.log(`published to uri:${uri}`)
         })
     return publishCommand

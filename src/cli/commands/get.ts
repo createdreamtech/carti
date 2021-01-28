@@ -5,6 +5,7 @@ import { Config } from "../../lib/config"
 import { CID } from "multiformats";
 import chalk from "chalk";
 import { handleInstall } from "./install"
+import { commandHandler } from "./command_util";
 
 
 export const addGetCommand = (config: Config): program.Command => {
@@ -15,7 +16,7 @@ export const addGetCommand = (config: Config): program.Command => {
         .option("-p, --path", "only return path information")
         .option("-g, --global", "install bundle into global location")
         .action(async (name, options) => {
-            return handleGet(config, name, options.yes, options.path, options.global)
+            return commandHandler(handleGet,config, name, options.yes, options.path, options.global)
         })
     return machineCommand
 }

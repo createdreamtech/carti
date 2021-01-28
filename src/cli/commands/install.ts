@@ -7,6 +7,9 @@ import * as utils from "../util";
 import { bundle } from "@createdreamtech/carti-core";
 import { bundleFetcher } from "../../lib/fetcher";
 import { CID } from "multiformats";
+import { commandHandler } from "./command_util";
+
+
 
 export const addInstallCommand = (config: Config): program.Command => {
    return program
@@ -15,7 +18,7 @@ export const addInstallCommand = (config: Config): program.Command => {
    .option("-y, --yes", "choose match without prompt")
    .option("-g, --global", "install bundle to global storage")
        .action(async (name, options) => {
-       return handleInstall(config,name, options.yes, options.global) as any
+       return commandHandler(handleInstall,config,name, options.yes, options.global) as any
    })
 }
 
@@ -27,8 +30,10 @@ const renderBundle = (b: Bundle): string => {
 export async function handleInstall(config: Config, name:string, first:boolean, global?:boolean): Promise<Bundle> {
     const bundles = await config.globalConfigStorage.get(name)
     let bun = bundles[0]
+
     if (!first) {
         const question = utils.pickBundle("Which bundle would you like to install", bundles, renderBundle)
+        //NOTE RXJS used internally by inquirer breaks try/catch
         const answer = await inquirer.prompt([question])
         const { id } = parseShortDesc(answer.bundle)
         bun = bundles.filter((b) => b.id === id)[0]

@@ -21,6 +21,7 @@ import url from "url"
 import { CID } from "multiformats";
 import { cwd } from "process";
 import { CartiBundleStorage } from "../../lib/storage/carti_bundles";
+import { commandHandler } from "./command_util";
 const rmAll = promisify(rimraf)
 
 type addMachineCommandType = "ram" | "rom" | "flashdrive";
@@ -29,7 +30,7 @@ export const addMachineCommand = (config: Config): program.Command => {
     const add = (addType: addMachineCommandType) => {
         return (name: string, options: PackageEntryOptions & {yes: boolean}) => {
             const { length, start, shared, yes, label,} = options
-            return handleAdd(config, name, { length, start, shared, label }, addType, yes)
+            return commandHandler(handleAdd, config, name, { length, start, shared, label }, addType, yes)
         }
     }
     const machineCommand = program.command("machine")
@@ -43,17 +44,17 @@ export const addMachineCommand = (config: Config): program.Command => {
         .passCommandToAction(false)
 
     machineRmCommand.command("ram")
-    .description("remove ram entry from machine-package")
-    .action(()=>handleRm(config,"ram"))
+        .description("remove ram entry from machine-package")
+        .action(() => commandHandler(handleRm, config, "ram"))
 
     machineRmCommand.command("rom")
-    .description("remove rom entry from machine-package")
-    .action(()=>handleRm(config,"rom"))
+        .description("remove rom entry from machine-package")
+        .action(() => commandHandler(handleRm, config, "rom"))
 
     machineRmCommand.command("flash <label>")
-    .description("remove flash drive entry from machine-package, must specify label")
-    .usage("mylabel")
-    .action((label)=>handleRm(config,"flashdrive", label))
+        .description("remove flash drive entry from machine-package, must specify label")
+        .usage("mylabel")
+        .action((label) => commandHandler(handleRm, config, "flashdrive", label))
 
 
     const machineAddCommand = new program.Command("add")
@@ -82,7 +83,7 @@ export const addMachineCommand = (config: Config): program.Command => {
     .usage("'ls /bin'")
     .option("-p, --prefix <prefix>", "prefix for bootargs ex. console=hvc0 rootfstype=ext2 root=/dev/mtdblock0 rw quiet mtdparts=flash.0:-(root) ")
     .action((args,options)=>{
-        return handleBoot(config, args, options.prefix)
+        return commandHandler(handleBoot, config, args, options.prefix)
     })
 
     machineAddCommand.command("rom <bundle>")
@@ -106,7 +107,7 @@ export const addMachineCommand = (config: Config): program.Command => {
         .option("-d, --dir <dir>", "specify an output directory for machine-config.lua")
         .option("-r, --runscript", "output a default lua run script")
         .action(async (options) => {
-            return handleBuild(config, options.dir, options.runscript)
+            return commandHandler(handleBuild, config, options.dir, options.runscript)
         })
 
     machineCommand.command("init")
@@ -119,7 +120,11 @@ export const addMachineCommand = (config: Config): program.Command => {
         .option("--nobuild", "install remote machine bundles but does not generate a lua config")
         .option("--nobundle", "do not output machine bundles into a single mountable build location")
         .option("-g, --global", "install all bundles into global location")
-        .action(async (uri,options) => handleInstall(config, uri,options.nobuild,options.nobundle || false,options.global))
+        .action(async (uri, options) => commandHandler(handleInstall, 
+            config, 
+            uri, 
+            options.nobuild, 
+            options.nobundle || false, options.global))
 
     return machineCommand
 }
