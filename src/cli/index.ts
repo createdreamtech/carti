@@ -17,7 +17,7 @@ commands.addListCommand(config)
 commands.addWhichCommand(config)
 commands.addGetCommand(config)
 commands.addDefaultsCommand()
+commands.addVersionCommand()
 haveYouInstalledDefaultRepo()
 program
-  .version(version, "-v, --version")
   .parse(process.argv);
