@@ -38,6 +38,22 @@ export const addMachineCommand = (config: Config): program.Command => {
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 
+    const machineRepoCommand = new program.Command("repo")
+        .description("a util to annotate repo dependencies for automatic retrieval from config")
+        .storeOptionsAsProperties(false)
+        .passCommandToAction(false)
+
+    machineRepoCommand.command("list")
+        .description("lists links to repo dependencies for optional inclusion in config")
+        .action(() => commandHandler(handleListRepo, config))
+    machineRepoCommand.command("add <repos>")
+        .description("write comma seperated list of repos into config")
+        .action((repos) => commandHandler(handleAddRepo, config, repos))
+    machineRepoCommand.command("rm")
+        .description("Removes repo entry")
+        .action(() => commandHandler(handleRmRepo, config))
+
+
     const machineRmCommand = new program.Command("rm")
         .description("Rm bundles from cartesi machine description using ram | rom | flashdrive options")
         .storeOptionsAsProperties(false)
@@ -102,6 +118,7 @@ export const addMachineCommand = (config: Config): program.Command => {
     
     machineCommand.addCommand(machineAddCommand)
     machineCommand.addCommand(machineRmCommand)
+    machineCommand.addCommand(machineRepoCommand)
     machineCommand.command("build")
         .description("Build a lua cartesi machine configuration from carti-machine-package.json")
         .option("-d, --dir <dir>", "specify an output directory for machine-config.lua")
@@ -119,12 +136,15 @@ export const addMachineCommand = (config: Config): program.Command => {
         .description("Install a cartesi machine, installing bundles and optionally a lua cartesi machine config from a uri or file path specified carti-machine-package.json")
         .option("--nobuild", "install remote machine bundles but does not generate a lua config")
         .option("--nobundle", "do not output machine bundles into a single mountable build location")
+        .option("--norepo", "do not auto add repos")
         .option("-g, --global", "install all bundles into global location")
-        .action(async (uri, options) => commandHandler(handleInstall, 
+        .action(async (uri:string, options:any) => commandHandler(handleInstall, 
             config, 
             uri, 
             options.nobuild, 
-            options.nobundle || false, options.global))
+            options.nobundle || false, 
+            options.norepo || false,
+            options.global))
 
     return machineCommand
 }
@@ -153,13 +173,54 @@ async function getPackageFile(uri: string): Promise<Readable> {
     })
 }
 
+async function handleListRepo(config: Config){
+    let cfg = await getMachineConfig()
+    const lookup: any = {}
+    const uniqueUri:string[] =[]
+    for(const asset of cfg.assets){
+        const uri = await config.globalConfigStorage.origin(asset.cid)
+        uri.forEach((u)=>{
+            if (lookup[u]) return
+            lookup[u] = true
+            uniqueUri.push(u)
+        })
+    }
+    console.log(uniqueUri.join(','))
+}
 
-async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, global?: boolean): Promise<void> {
+async function handleAddRepo(config: Config, repos: string){
+    let cfg = await getMachineConfig()
+    cfg.repos = repos.split(',')
+    return writeMachineConfig(cfg)
+}
+
+async function handleRmRepo(config: Config){
+    let cfg = await getMachineConfig()
+    delete cfg.repos
+    return writeMachineConfig(cfg)
+}
+
+async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, norepo:boolean, global?: boolean): Promise<void> {
     //TODO add error handling here
     if(nobundleDir === false) await fs.ensureDir(CARTI_BUILD_BUNDLES_PATH)
     const packageStorage = new CartiBundleStorage(CARTI_BUILD_BUNDLES_PATH) 
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
     //check packages can all be resolved
+    if (norepo === false && packageConfig.repos) {
+        for(const repo of packageConfig.repos){
+            try {
+                if (await config.repo.has(repo)) {
+                    console.log(`skipping, already knows repo: ${repo}`)
+                } else {
+                    await config.repo.add(repo)
+                    console.log(`adding repo: ${repo}`)
+                }
+            } catch (e) {
+                console.log(`skipping, could not add ${repo} cause: ${e.message}`)
+            }
+        }
+    }
+
     for (const asset of packageConfig.assets) {
         const bundles = await config.globalConfigStorage.getById(asset.cid)
         if (bundles === [] || bundles === undefined)
