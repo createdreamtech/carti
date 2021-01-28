@@ -44,6 +44,11 @@ export class Repo {
         return this.cgs.add(ur, bundles)
     }
 
+    async list(): Promise<string[]> {
+        const list = await this.cgs.listing()
+        return Object.keys(list)
+    }
+
     async has(uri: string) {
         const ur = resolveURI(uri)
         if(!ur) return false

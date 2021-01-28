@@ -1,3 +1,4 @@
+import chalk from "chalk";
 import program from "commander";
 import { makeLogger } from "../../lib/logging"
 import { Repo } from "../../lib/repo";
@@ -15,6 +16,17 @@ export const addRepoCommand = (repo: Repo): program.Command => {
          commandHandler(() => {
             if (!src) throw new Error("could not add missing listing")
             return repo.add(src)
+         })
+      )
+
+   repoCommand.command("list")
+      .description("list current known package listing repos")
+      .action(async () => 
+         commandHandler(async () => {
+          const list = await repo.list()
+          list.forEach((r)=>{
+               console.log(`${chalk.green(r)}`)
+          })
          })
       )
 
