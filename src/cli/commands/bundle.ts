@@ -7,6 +7,7 @@ import { config } from "../../lib/config"
 import fs from "fs-extra";
 import os from "os";
 import { https } from "follow-redirects"
+import { progressBar } from "./command_util";
 
 const bundler = cartiLib.bundle
 const logger = makeLogger("Bundle Command")
@@ -87,6 +88,7 @@ const handleBundleCommand = async (bundleUri: string, bundle: BundleCommand) => 
     }
     const configStorage = bundle.global ? globalLocalConfigStorage : localConfigStorage
     const bStorage = bundle.global ? bundleStorage.global : bundleStorage.local
+    const progress =await progressBar("Bundling package")
     const bun = await bundler.bundle({
         bundleType: type,
         name,
@@ -100,6 +102,7 @@ const handleBundleCommand = async (bundleUri: string, bundle: BundleCommand) => 
     const bPath = await bStorage.path(CID.parse(bun.id))
     const bundles = [Object.assign({}, bun, { uri: bPath })]
     await configStorage.add(bPath, bundles)
+    progress.stop()
     console.log(`bundled: ${name} as ${bun.id}`)
 }
 

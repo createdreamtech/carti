@@ -5,7 +5,7 @@ import { Config } from "../../lib/config"
 import { CID } from "multiformats";
 import chalk from "chalk";
 import { handleInstall } from "./install"
-import { commandHandler } from "./command_util";
+import { commandHandler, progressBar } from "./command_util";
 
 
 export const addGetCommand = (config: Config): program.Command => {
@@ -15,6 +15,7 @@ export const addGetCommand = (config: Config): program.Command => {
         .option("-y, --yes", "choose first match")
         .option("-p, --path", "only return path information")
         .option("-g, --global", "install bundle into global location")
+        .option("-n, --noprogress", "no progress bar output")
         .action(async (name, options) => {
             return commandHandler(handleGet,config, name, options.yes, options.path, options.global)
         })
@@ -41,7 +42,7 @@ const dedup = (buns: Bundle[]) => {
 // handleGet the logic here will cause the commandline to search the global space if global is specified, 
 // otherwise the logic will simply try and resolve the bundle anyway it can (global or local space) and install the data locally 
 // if it's not found in either. This differs from --global , which will try and install any missing bundle to the global space
-async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boolean, global?: boolean): Promise<void> {
+async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boolean, noprogress: boolean, global?: boolean): Promise<void> {
     const localBundles = await config.localConfigStorage.get(name)
     const globalBundles = await config.globalLocalConfigStorage.get(name)
     let bundles = global ? globalBundles : localBundles.concat(globalBundles)
@@ -60,7 +61,7 @@ async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boo
         console.log(renderBundle(b,path!))
     }
     if(bundles.length === 0){
-        bun = await handleInstall(config, name, yes, global)
+        bun = await handleInstall(config, name, yes, noprogress, global)
         render(bun)
         return
     }

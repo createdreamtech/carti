@@ -21,7 +21,8 @@ import url from "url"
 import { CID } from "multiformats";
 import { cwd } from "process";
 import { CartiBundleStorage } from "../../lib/storage/carti_bundles";
-import { commandHandler } from "./command_util";
+import { commandHandler, progressBar } from "./command_util";
+import chalk from "chalk";
 const rmAll = promisify(rimraf)
 
 type addMachineCommandType = "ram" | "rom" | "flashdrive";
@@ -210,7 +211,7 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
         for(const repo of packageConfig.repos){
             try {
                 if (await config.repo.has(repo)) {
-                    console.log(`skipping, already knows repo: ${repo}`)
+                    console.log(`skipping adding repo, already knows repo: ${repo}`)
                 } else {
                     await config.repo.add(repo)
                     console.log(`adding repo: ${repo}`)
@@ -232,19 +233,28 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
             if (globalExists) await bundle.install(bundles[0], config.bundleStorage.global, packageStorage)
             if (localExists) await bundle.install(bundles[0], config.bundleStorage.local, packageStorage)
         }
-        if (localExists || globalExists)
+        if (!global && localExists || !global && globalExists){
+            const progress = await progressBar(`Skipping install, found bundle: ${bundles[0].name}`)
+                setTimeout(()=>progress.stop(), 1000)
             continue
+        }
         const bundleStorage = global ? config.bundleStorage.global : config.bundleStorage.local
         const configStorage = global ? config.globalLocalConfigStorage : config.localConfigStorage
+
+        const progress = await progressBar(`Installing bundle: ${bundles[0].name}`)
         await bundle.install(bundles[0], bundleFetcher(bundles[0].uri as string), bundleStorage)
+        await progress.stop()
         //if you create a built bundles directory then write fetched bundles into the shared store
         if(nobundleDir === false) await bundle.install(bundles[0], bundleStorage, packageStorage)
         const path = await bundleStorage.path(CID.parse(bundles[0].id))
         await configStorage.add(path, [bundles[0]])
     }
-    if(nobuild)
+    if(nobuild){
+        console.log(`${chalk.magenta("Successful")} machine installed)`)
         return 
-    return buildMachine(config, packageConfig)
+    }
+    await buildMachine(config, packageConfig)
+    console.log(`${chalk.magenta("Successful")} machine installed`)
 }
 
 async function handleRm(config: Config, driveType: addMachineCommandType, label?:string) {
