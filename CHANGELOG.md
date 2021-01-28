@@ -1,3 +1,10 @@
+## [1.5.6](https://github.com/createdreamtech/carti/compare/1.5.5...1.5.6) (2021-01-28)
+
+
+### Bug Fixes
+
+* ram default length is incorrect it does not behave like flash ([3391cd2](https://github.com/createdreamtech/carti/commit/3391cd275b0127db1a664d0b099095e25b62ae26))
+
 ## [1.5.5](https://github.com/createdreamtech/carti/compare/1.5.4...1.5.5) (2021-01-28)
 
 
