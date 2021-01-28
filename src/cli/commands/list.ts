@@ -4,6 +4,7 @@ import { Bundle } from "@createdreamtech/carti-core"
 import { Config } from "../../lib/config"
 import { shortDesc } from "../../lib/bundle";
 import { Listing } from "../../lib/storage/bundle_listing";
+import { commandHandler } from "./command_util";
 
 
 export const addListCommand = (config: Config): program.Command => {
@@ -12,7 +13,7 @@ export const addListCommand = (config: Config): program.Command => {
         .usage("list")
         .option("--all", "lists all bundles installed or retrievable")
         .action(async (options:any) => {
-            return handleList(config,options.all)
+            return commandHandler(handleList, config, options.all)
         })
     return machineCommand
 }

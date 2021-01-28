@@ -5,15 +5,14 @@ import { Config } from "../../lib/config"
 import { CID } from "multiformats";
 import chalk from "chalk";
 import { CartiBundleStorage } from "../../lib/storage/carti_bundles";
+import { commandHandler } from "./command_util";
 
 
 export const addWhichCommand = (config: Config): program.Command => {
     const machineCommand = program.command("which <name>")
         .description("Which resolves where a package is located")
         .usage("which <name>")
-        .action(async (name) => {
-            return handleWhich(config,name)
-        })
+        .action(async (name) => commandHandler(handleWhich, config, name))
     return machineCommand
 }
 
