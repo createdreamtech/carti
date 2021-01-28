@@ -79,7 +79,7 @@ const defaultBoot: Boot = {
 }
 const defaultRam: Ram = {
     cid: "baenrwia5vqqvdu5chzjqq57tfo45z2txorpnmljeiuwemcibba43noqpvu",
-    length: "0x6a6000"
+    length: "0x4000000"
 }
 const defaultFlash: FlashDrive = [
     {
