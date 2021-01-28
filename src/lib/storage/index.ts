@@ -23,7 +23,6 @@ export class CartiConfigStorage {
             this.initializedIndex = true
         }
     }
-
     async get(name: string): Promise<Array<Bundle>> {
         await this.setIndex()
         return this.globalIndex.getPackageByName(name)
@@ -32,6 +31,15 @@ export class CartiConfigStorage {
     async getById(id: string): Promise<Array<Bundle>> {
         await this.setIndex()
         return this.globalIndex.getPackageById(id)
+    }
+
+    async origin(id: string): Promise<string[]> {
+        await this.setIndex()
+        return this.globalIndex.getOrigin(id)
+    }
+
+    async hasOrigin(origin: string): Promise<boolean> {
+        return  this.globalListing.has(origin)
     }
 
     async add(path: string, bundles: Bundle[]) {

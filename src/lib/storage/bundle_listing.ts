@@ -43,6 +43,11 @@ export class BundleListing {
         return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
     }
 
+    async has(path: string): Promise<boolean> {
+        const listing: Listing = await fs.readJSON(this.packageListingPath)
+        return listing.hasOwnProperty(path)
+    }
+
     // used to rm package listings from a particular origin
     async rm(path: string) {
         if(this.exists() === false) return 
