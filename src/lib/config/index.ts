@@ -6,7 +6,7 @@ import { Repo } from "../repo"
 import { fetcher } from "../fetcher";
 import { BundleManager } from "../bundle"
 import fs from "fs-extra";
-import { CartiPackage, Ram, Rom, Boot, FlashDrive } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
+import { CartiPackage, Ram, Rom, Boot, FlashDrive, Repos } from "@createdreamtech/carti-core/build/src/generated/machine_config_pkg_schema"
 import chalk from "chalk"
 
 export interface Config {
@@ -71,6 +71,9 @@ export const config: Config = {
     bundleListingManager,
     repo
 }
+const defaultRepos: Repos = [
+    "https://github.com/createdreamtech/carti-default"
+]
 const defaultRom: Rom = {
     cid: "baenrwigwdfweve3apyvwicc2zpmzz6vdhsg62xnmzhauruw6ud4dbbafuq"
 }
@@ -108,7 +111,17 @@ const defaultAssets = [
       }
 ]
 export async function initMachineConfig(): Promise<void> {
-    const packageCfg = { assets: defaultAssets, machineConfig: { flash_drive: defaultFlash, ram: defaultRam, rom: defaultRom, boot: defaultBoot }, version: "0.0.0-development", }
+    const packageCfg = { assets: defaultAssets, 
+        machineConfig: { 
+            flash_drive: defaultFlash, 
+            ram: defaultRam, 
+            rom: defaultRom, 
+            boot: defaultBoot 
+        }, 
+        version: "0.0.0-development", 
+        repos: defaultRepos
+    }
+
     const exists = await fs.pathExists(cartesiMachinePath)
     if (exists) {
         console.warn("Machine has already been init")

@@ -44,6 +44,12 @@ export class Repo {
         return this.cgs.add(ur, bundles)
     }
 
+    async has(uri: string) {
+        const ur = resolveURI(uri)
+        if(!ur) return false
+        return this.cgs.hasOrigin(ur)
+    }
+
     async rm(uri: string) {
         const ur = resolveURI(uri)
         if(ur) 
