@@ -7,7 +7,7 @@ import * as utils from "../util";
 import { bundle } from "@createdreamtech/carti-core";
 import { bundleFetcher } from "../../lib/fetcher";
 import { CID } from "multiformats";
-import { commandHandler } from "./command_util";
+import { commandHandler, progressBar } from "./command_util";
 
 
 
@@ -17,8 +17,9 @@ export const addInstallCommand = (config: Config): program.Command => {
    .description("Install a bundle locally")
    .option("-y, --yes", "choose match without prompt")
    .option("-g, --global", "install bundle to global storage")
+   .option("-n, --noprogress", "no output from progress bar")
        .action(async (name, options) => {
-       return commandHandler(handleInstall,config,name, options.yes, options.global) as any
+       return commandHandler(handleInstall,config,name, options.yes,options.noprogress,options.global) as any
    })
 }
 
@@ -27,7 +28,7 @@ const renderBundle = (b: Bundle): string => {
     return shortDesc({ bundleType, name, version, id , uri}) 
 }
 
-export async function handleInstall(config: Config, name:string, first:boolean, global?:boolean): Promise<Bundle> {
+export async function handleInstall(config: Config, name: string, first: boolean, noprogress: boolean, global?: boolean): Promise<Bundle> {
     const bundles = await config.globalConfigStorage.get(name)
     let bun = bundles[0]
 
@@ -40,8 +41,12 @@ export async function handleInstall(config: Config, name:string, first:boolean, 
     }
     const bundleStorage = global ? config.bundleStorage.global : config.bundleStorage.local
     const configStorage = global ? config.globalLocalConfigStorage : config.localConfigStorage
+    let progress;
+    if(!noprogress) progress = await progressBar(`Installing bundle ${name}`)
     await bundle.install(bun,bundleFetcher(bun.uri as string), bundleStorage)
+
     const path = await bundleStorage.path(CID.parse(bun.id))
     await configStorage.add(path, [bun])
+    if(!noprogress) progress?.stop()
     return bun
 }
