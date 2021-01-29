@@ -37,7 +37,7 @@ export class BundleListing {
     }
     // used to add package listings from a particular origin
     async add(path: string, bundle: Bundle[]) {
-        this.ensureExists()
+        await this.ensureExists()
         const listing: Listing = await fs.readJSON(this.packageListingPath)
         listing[path] = bundle
         return fs.writeFile(this.packageListingPath, JSON.stringify(listing, null, 2))
