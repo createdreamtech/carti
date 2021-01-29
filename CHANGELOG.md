@@ -1,3 +1,10 @@
+## [1.6.2](https://github.com/createdreamtech/carti/compare/1.6.1...1.6.2) (2021-01-29)
+
+
+### Bug Fixes
+
+* correct listing file missing issue when installing machine ([d039c80](https://github.com/createdreamtech/carti/commit/d039c803e833c686d4bf0f05c473713ac32b6198))
+
 ## [1.6.1](https://github.com/createdreamtech/carti/compare/1.6.0...1.6.1) (2021-01-29)
 
 
