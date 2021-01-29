@@ -328,9 +328,7 @@ async function handleBoot(config: Config, args: string, bootPrefix?: string): Pr
 async function buildMachine(config: Config, cfg: machineConfigPackage.CartiPackage, dir?:string, runscript?:string): Promise<void> {
     const machineConfig = clib.createNewMachineConfig(cfg, dir || CARTI_DOCKER_PACKAGE_PATH)
     const luaConfig = generateLuaConfig(machineConfig, "return")
-    if(dir)
-        await fs.ensureDir(dir)
-    const outputDir = dir || cwd()
+    const outputDir = cwd()
     await fs.writeFile(`${outputDir}/machine-config.lua`, luaConfig)
     if(runscript)
         await fs.copyFile(`${__dirname}/../../scripts/run-config.lua`, `${outputDir}/run-config.lua`)
