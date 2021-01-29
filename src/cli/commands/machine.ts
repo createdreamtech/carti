@@ -217,6 +217,7 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
                     console.log(`adding repo: ${repo}`)
                 }
             } catch (e) {
+                debugger
                 console.log(`skipping, could not add ${repo} cause: ${e.message}`)
             }
         }

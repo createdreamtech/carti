@@ -9,7 +9,8 @@ export async function commandHandler<Args extends any[], Return>(
        const result = await operation(...parameters);
        return result
     } catch (e) {
-        console.error(`${chalk.bold(chalk.red("Error: "))}${chalk.red(e.message)}`)
+//        console.error(`${chalk.bold(chalk.red("Error: "))}${chalk.red(e.message)}`)
+console.error(e)
         exit(1)
     }
 }

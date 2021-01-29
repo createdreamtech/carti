@@ -44,6 +44,7 @@ export class BundleListing {
     }
 
     async has(path: string): Promise<boolean> {
+        if(this.exists() === false) return false
         const listing: Listing = await fs.readJSON(this.packageListingPath)
         return listing.hasOwnProperty(path)
     }
