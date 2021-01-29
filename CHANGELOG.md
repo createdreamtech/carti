@@ -1,3 +1,10 @@
+## [1.6.1](https://github.com/createdreamtech/carti/compare/1.6.0...1.6.1) (2021-01-29)
+
+
+### Bug Fixes
+
+* correct async await for listing file existence ([3c69daf](https://github.com/createdreamtech/carti/commit/3c69dafdd6ba6f98e2aa13556eccafac6b7eb49a))
+
 # [1.6.0](https://github.com/createdreamtech/carti/compare/1.5.6...1.6.0) (2021-01-29)
 
 
