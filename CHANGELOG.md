@@ -1,3 +1,12 @@
+## [1.6.3](https://github.com/createdreamtech/carti/compare/1.6.2...1.6.3) (2021-01-29)
+
+
+### Bug Fixes
+
+* output directory was misleading attributed to the base path change dir ([6fbded6](https://github.com/createdreamtech/carti/commit/6fbded6d9a33093e47aa5f305b0fda55d4a34e4c))
+* unneccessary await introduced with bug patch ([fd20846](https://github.com/createdreamtech/carti/commit/fd20846844343e4bc9d135347b0a561f45c5f876))
+* version bump on carti-core to fix escape issues with carti ([d649903](https://github.com/createdreamtech/carti/commit/d649903e7af7cd563dc8278e820e5d2b08b61b7b))
+
 ## [1.6.2](https://github.com/createdreamtech/carti/compare/1.6.1...1.6.2) (2021-01-29)
 
 
