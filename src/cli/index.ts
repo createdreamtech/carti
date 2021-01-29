@@ -17,6 +17,7 @@ commands.addListCommand(config)
 commands.addWhichCommand(config)
 commands.addGetCommand(config)
 commands.addDefaultsCommand()
+commands.addDockerCommand()
 commands.addVersionCommand()
 haveYouInstalledDefaultRepo()
 program
