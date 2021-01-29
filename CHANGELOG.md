@@ -1,3 +1,23 @@
+# [1.6.0](https://github.com/createdreamtech/carti/compare/1.5.6...1.6.0) (2021-01-29)
+
+
+### Bug Fixes
+
+* add support for proper catching of errors from cli ([9784373](https://github.com/createdreamtech/carti/commit/9784373a6855bd2de84a925a14a8fa395ec00f08))
+* auto calculation of drive size for machine add ([f629c2e](https://github.com/createdreamtech/carti/commit/f629c2e9c149c77a1cc3d5da4e5d2370529d1a49))
+* corrects get duplicate behavior and clarifies global flag handling ([39b20d0](https://github.com/createdreamtech/carti/commit/39b20d0ed47da030748be45cd82761e797cb9935))
+
+
+### Features
+
+* add a docker info command ([dd6f112](https://github.com/createdreamtech/carti/commit/dd6f11279050cd86dbfae6e911e232a2e9785c50))
+* add support for a progress bar ([2a1bdf2](https://github.com/createdreamtech/carti/commit/2a1bdf20148b1d68cd812aada959662dba4f32a1))
+* add support for defaultRepo specification ([76b0716](https://github.com/createdreamtech/carti/commit/76b0716997e2bc58dd9f15cdae90768b568cb5d8))
+* add support for has from repo context ([4f5596f](https://github.com/createdreamtech/carti/commit/4f5596f4ea560109f36996aa7747dad319842e69))
+* add support for listing repo entries ([cfaa4db](https://github.com/createdreamtech/carti/commit/cfaa4db47e9b64a12e804db6ff9f13296bcc4044))
+* add support for repos to be specified in carti-machine-package ([19c1f2b](https://github.com/createdreamtech/carti/commit/19c1f2b10d07a9d9d22b233e9978c9b445b0f4f4))
+* add support for resolving origin queries on config/repo ([2e99b19](https://github.com/createdreamtech/carti/commit/2e99b19b41bc594a0d6cfa115731f14f8faf2ce7))
+
 ## [1.5.6](https://github.com/createdreamtech/carti/compare/1.5.5...1.5.6) (2021-01-28)
 
 
