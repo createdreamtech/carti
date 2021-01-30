@@ -1,3 +1,10 @@
+## [1.6.5](https://github.com/createdreamtech/carti/compare/1.6.4...1.6.5) (2021-01-30)
+
+
+### Bug Fixes
+
+* rm extra paren from output ([06832ee](https://github.com/createdreamtech/carti/commit/06832ee345ed082d18951ca7d8c897265381bab8))
+
 ## [1.6.4](https://github.com/createdreamtech/carti/compare/1.6.3...1.6.4) (2021-01-30)
 
 
