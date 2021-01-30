@@ -1,3 +1,12 @@
+## [1.6.4](https://github.com/createdreamtech/carti/compare/1.6.3...1.6.4) (2021-01-30)
+
+
+### Bug Fixes
+
+* broken global logic corrects always install global behavior ([a5b706a](https://github.com/createdreamtech/carti/commit/a5b706adc706cf8e7d739687459583c31e2506e0))
+* support branches for repo listings ([25cddf0](https://github.com/createdreamtech/carti/commit/25cddf0f8d4c379fcb8a99eb0682b9e917989dbb))
+* this resolves an inconsistency issue that prevented users ([641b8d5](https://github.com/createdreamtech/carti/commit/641b8d5c848257d6c8b44acc162cbfacc6777d5b))
+
 ## [1.6.3](https://github.com/createdreamtech/carti/compare/1.6.2...1.6.3) (2021-01-29)
 
 
