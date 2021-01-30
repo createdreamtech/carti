@@ -24,7 +24,7 @@ export const CARTI_DOCKER_PACKAGE_PATH ="/opt/carti/packages"
 export const CARTI_BUILD_PATH = `${process.cwd()}/carti_build`
 export const CARTI_BUILD_BUNDLES_PATH = `${CARTI_BUILD_PATH}/bundles`
 
-const cartesiMachinePath = `${process.cwd()}/carti-machine-package.json`
+export const cartesiMachinePath = `${process.cwd()}/carti-machine-package.json`
 const bundlesPath = `${process.cwd()}/carti_bundles`
 const globalBundlesPath = `${os.homedir()}/.carti/carti_bundles`
 const bundleListingFilename = ".bundles_index.json"
@@ -110,6 +110,9 @@ const defaultAssets = [
         "fileName": "rootfs.ext2"
       }
 ]
+export async function machineConfigExists(): Promise<boolean> {
+   return await fs.pathExists(cartesiMachinePath)
+}
 export async function initMachineConfig(): Promise<void> {
     const packageCfg = { assets: defaultAssets, 
         machineConfig: { 
