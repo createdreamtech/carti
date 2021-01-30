@@ -3,7 +3,7 @@ import { makeLogger } from "../../lib/logging"
 import { machineConfigPackage, rmPackageEntry, rmPackageEntryByLabel, setPackageBoot } from "@createdreamtech/carti-core"
 import * as clib from "@createdreamtech/carti-core"
 import { Bundle, bundle, PackageEntryOptions, generateLuaConfig } from "@createdreamtech/carti-core"
-import { Config, getMachineConfig, initMachineConfig, writeMachineConfig, CARTI_DOCKER_PACKAGE_PATH, CARTI_BUILD_BUNDLES_PATH } from "../../lib/config"
+import { Config, getMachineConfig, initMachineConfig, writeMachineConfig, CARTI_DOCKER_PACKAGE_PATH, CARTI_BUILD_BUNDLES_PATH, machineConfigExists } from "../../lib/config"
 import inquirer from "inquirer"
 import { shortDesc, parseShortDesc } from "../../lib/bundle";
 import * as utils from "../util"
@@ -138,6 +138,7 @@ export const addMachineCommand = (config: Config): program.Command => {
         .option("--nobuild", "install remote machine bundles but does not generate a lua config")
         .option("--nobundle", "do not output machine bundles into a single mountable build location")
         .option("--norepo", "do not auto add repos")
+        .option("-s, --save", "save remote carti-machine-package.json to local machine")
         .option("-g, --global", "install all bundles into global location")
         .action(async (uri:string, options:any) => commandHandler(handleInstall, 
             config, 
@@ -145,6 +146,7 @@ export const addMachineCommand = (config: Config): program.Command => {
             options.nobuild, 
             options.nobundle || false, 
             options.norepo || false,
+            options.save || false,
             options.global))
 
     return machineCommand
@@ -201,11 +203,15 @@ async function handleRmRepo(config: Config){
     return writeMachineConfig(cfg)
 }
 
-async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, norepo:boolean, global?: boolean): Promise<void> {
+async function handleInstall(config: Config, uri: string, nobuild:boolean, nobundleDir: boolean, norepo:boolean, saveConfig:boolean, global?: boolean): Promise<void> {
     //TODO add error handling here
     if(nobundleDir === false) await fs.ensureDir(CARTI_BUILD_BUNDLES_PATH)
     const packageStorage = new CartiBundleStorage(CARTI_BUILD_BUNDLES_PATH) 
+
     const packageConfig: machineConfigPackage.CartiPackage = JSON.parse(await fromStreamToStr(await getPackageFile(uri)))
+    if(saveConfig){
+        await writeMachineConfig(packageConfig)
+    }
     //check packages can all be resolved
     if (norepo === false && packageConfig.repos) {
         for(const repo of packageConfig.repos){
