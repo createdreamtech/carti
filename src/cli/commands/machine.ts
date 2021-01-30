@@ -224,9 +224,15 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
     }
 
     for (const asset of packageConfig.assets) {
-        const bundles = await config.globalConfigStorage.getById(asset.cid)
-        if (bundles === [] || bundles === undefined)
-            throw new Error(`Could not resolve bundle for id:${asset.cid} name:${asset.name} try adding the repo`)
+        let bundles = await config.globalConfigStorage.getById(asset.cid)
+        if (bundles.length === 0 ){
+            // Note search for bundles locally as well, users may have fully resolved
+            // bundles that are published but not added via repo
+            const localBundles = await config.localConfigStorage.getById(asset.cid)
+            if (localBundles.length === 0)
+                throw new Error(`Could not resolve bundle for id:${asset.cid} name:${asset.name} try adding the repo`)
+            bundles = localBundles
+        }
         const localExists = await config.bundleStorage.local.diskProvider.exists(CID.parse(asset.cid))
         const globalExists = await config.bundleStorage.global.diskProvider.exists(CID.parse(asset.cid))
         // write to the build store if the option is not disabled 
