@@ -257,7 +257,7 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
         await configStorage.add(path, [bundles[0]])
     }
     if(nobuild){
-        console.log(`${chalk.magenta("Successful")} machine installed)`)
+        console.log(`${chalk.magenta("Successful")} machine installed`)
         return 
     }
     await buildMachine(config, packageConfig)
