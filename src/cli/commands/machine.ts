@@ -240,7 +240,7 @@ async function handleInstall(config: Config, uri: string, nobuild:boolean, nobun
             if (globalExists) await bundle.install(bundles[0], config.bundleStorage.global, packageStorage)
             if (localExists) await bundle.install(bundles[0], config.bundleStorage.local, packageStorage)
         }
-        if (!global && localExists || !global && globalExists){
+        if (!global && localExists || global && globalExists){
             const progress = await progressBar(`Skipping install, found bundle: ${bundles[0].name}`)
                 setTimeout(()=>progress.stop(), 1000)
             continue
