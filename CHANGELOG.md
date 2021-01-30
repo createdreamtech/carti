@@ -1,3 +1,10 @@
+## [1.6.6](https://github.com/createdreamtech/carti/compare/1.6.5...1.6.6) (2021-01-30)
+
+
+### Bug Fixes
+
+* add suport for optionally saving remote machine-config as well as installing ([ca5f1a2](https://github.com/createdreamtech/carti/commit/ca5f1a2538bae7d1d75d8c81552fd4e1bb4d6720))
+
 ## [1.6.5](https://github.com/createdreamtech/carti/compare/1.6.4...1.6.5) (2021-01-30)
 
 
