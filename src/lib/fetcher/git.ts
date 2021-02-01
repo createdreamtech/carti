@@ -13,7 +13,6 @@ export function gitFetcher(): Fetcher {
         let [, owner, repo] = urlParts.path.split("/")
         let refPart = urlParts.path.split(/\/tree\//)
         let ref = refPart.length === 1 ? undefined : refPart[refPart.length -1]
-        console.log(ref)
         // TODO add support for alternate git urls
         const result = await octokit.repos.getContent({
             //     baseUrl: `${urlParts.protocol}//${urlParts.hostname!}`,
