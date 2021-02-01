@@ -1,3 +1,11 @@
+## [1.6.7](https://github.com/createdreamtech/carti/compare/1.6.6...1.6.7) (2021-02-01)
+
+
+### Bug Fixes
+
+* broken default repo command ([c3ce6d4](https://github.com/createdreamtech/carti/commit/c3ce6d4ba2d49d19981103547d917c9dfe4ef80f))
+* lint no-console ([d0cc077](https://github.com/createdreamtech/carti/commit/d0cc077eb98cc9d496769e0eaf246dd8cc64fb38))
+
 ## [1.6.6](https://github.com/createdreamtech/carti/compare/1.6.5...1.6.6) (2021-01-30)
 
 
