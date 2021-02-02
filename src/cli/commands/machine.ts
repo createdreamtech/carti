@@ -90,6 +90,7 @@ export const addMachineCommand = (config: Config): program.Command => {
         .requiredOption("-m, --label <label>")
         .option("-l, --length <length>", "length of the drive in hex format ex. 0x4000000")
         .option("-s, --start <start>", "start position of the drive in hex format ex. 0x800000")
+        .option("--shared", "toggles the shared field defaults false")
         .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
         .option("-y, --yes", "choose match without prompt")
         .description("add a bundle to the flash entry for carti-machine-package.json")
