@@ -86,10 +86,11 @@ export const addMachineCommand = (config: Config): program.Command => {
         .option("-y, --yes", "choose match without prompt")
         .action(add("ram"))
 
-    machineAddCommand.command("flash <bundle>")
+    machineAddCommand.command("flash [bundle]")
         .requiredOption("-m, --label <label>")
         .option("-l, --length <length>", "length of the drive in hex format ex. 0x4000000")
         .option("-s, --start <start>", "start position of the drive in hex format ex. 0x800000")
+        .option("--shared", "toggles the shared field defaults false")
         .option("-r, --resolvedpath <resolvedpath>", "specify a package outside of a cid the mechanism default uses")
         .option("-y, --yes", "choose match without prompt")
         .description("add a bundle to the flash entry for carti-machine-package.json")
@@ -299,7 +300,7 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     let bundles: Bundle[] = await config.localConfigStorage.get(name)
     bundles = bundles.concat(await config.globalLocalConfigStorage.get(name))
     let bundle = bundles[0];
-    if (!yes) {
+    if (!yes && bundle) {
         const question = utils.pickBundle("Which bundle would you like to add to your cartesi machine build", bundles, renderBundle)
         const answer = await inquirer.prompt([question])
         const { id } = parseShortDesc(answer.bundle)
@@ -308,9 +309,15 @@ async function handleAdd(config: Config, name: string, options: clib.PackageEntr
     let cfg = await getMachineConfig()
     // Note equivalent to lua config https://github.com/cartesi/machine-emulator/blob/master/src/cartesi-machine.lua#L638
     if(addType === "flashdrive"){
-        const pth = await config.bundleStorage.path(CID.parse(bundle.id))
-        const filePath = fs.pathExistsSync(pth.local!) ?  pth.local : pth.global
-        options.length = options.length || `0x${BigInt(fs.statSync(`${filePath}`).size).toString(16)}` 
+        if(bundle){
+            const pth = await config.bundleStorage.path(CID.parse(bundle.id))
+            const filePath = fs.pathExistsSync(pth.local!) ? pth.local : pth.global
+            options.length = options.length || `0x${BigInt(fs.statSync(`${filePath}`).size).toString(16)}`
+        }else {
+            if(!options.length){
+                throw new Error("Bundleless flash drive not allowed to not specify length")
+            }
+        }
     }
     // Note ram default size is 64 << 20 https://github.com/cartesi/machine-emulator/blob/master/src/cartesi-machine.lua#L209
     if(addType === "ram")
