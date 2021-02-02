@@ -1,3 +1,11 @@
+## [1.6.8](https://github.com/createdreamtech/carti/compare/1.6.7...1.6.8) (2021-02-02)
+
+
+### Bug Fixes
+
+* pass through shared option to flash bundle for machine configuration ([25dc54e](https://github.com/createdreamtech/carti/commit/25dc54eaf9dc40170498c33cf95b9e1ca8121ea4))
+* support for bundless flash drive specification added to machines ([a6e66c8](https://github.com/createdreamtech/carti/commit/a6e66c8776c6aa93584935db36681c6432f383d6))
+
 ## [1.6.7](https://github.com/createdreamtech/carti/compare/1.6.6...1.6.7) (2021-02-01)
 
 
