@@ -44,15 +44,21 @@ export const addMachineCommand = (config: Config): program.Command => {
         .storeOptionsAsProperties(false)
         .passCommandToAction(false)
 
-    machineRepoCommand.command("list")
+    machineRepoCommand.command("deps")
         .description("lists links to repo dependencies for optional inclusion in config")
+        .action(() => commandHandler(handleDepsRepo, config))
+
+    machineRepoCommand.command("list")
+        .description("lists repos specified in the machine config")
         .action(() => commandHandler(handleListRepo, config))
+
     machineRepoCommand.command("add <repos>")
-        .description("write comma seperated list of repos into config")
+        .description("write comma seperated list of repos to add into config")
         .action((repos) => commandHandler(handleAddRepo, config, repos))
-    machineRepoCommand.command("rm")
-        .description("Removes repo entry")
-        .action(() => commandHandler(handleRmRepo, config))
+
+    machineRepoCommand.command("rm <repos>")
+        .description("write comma seprated list of repos to remove from config")
+        .action((repos) => commandHandler(handleRmRepo, config, repos))
 
 
     const machineRmCommand = new program.Command("rm")
@@ -177,7 +183,17 @@ async function getPackageFile(uri: string): Promise<Readable> {
     })
 }
 
-async function handleListRepo(config: Config){
+async function handleListRepo(config: Config) {
+    let cfg = await getMachineConfig()
+    if (!cfg.repos) return
+    const uniqueUri: string[] = []
+    cfg.repos.forEach((u) => {
+        uniqueUri.push(u)
+    })
+    console.log(uniqueUri.join(','))
+}
+
+async function handleDepsRepo(config: Config){
     let cfg = await getMachineConfig()
     const lookup: any = {}
     const uniqueUri:string[] =[]
@@ -194,13 +210,20 @@ async function handleListRepo(config: Config){
 
 async function handleAddRepo(config: Config, repos: string){
     let cfg = await getMachineConfig()
-    cfg.repos = repos.split(',')
+    const rs = cfg.repos || [];
+    cfg.repos = repos.split(',').concat(rs)
     return writeMachineConfig(cfg)
 }
 
-async function handleRmRepo(config: Config){
+async function handleRmRepo(config: Config, repos: string){
     let cfg = await getMachineConfig()
-    delete cfg.repos
+    const rs = repos.split(",")
+    const lookup: any = {}
+    rs.forEach((r)=>{
+        lookup[r] = true;
+    })
+    if(!cfg.repos) return
+    cfg.repos = cfg.repos.filter((f)=>!lookup[f])
     return writeMachineConfig(cfg)
 }
 
