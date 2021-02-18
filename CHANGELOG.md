@@ -1,3 +1,16 @@
+# [1.7.0](https://github.com/createdreamtech/carti/compare/1.6.8...1.7.0) (2021-02-18)
+
+
+### Bug Fixes
+
+* add support for improved list semantics for machine repo ([7e94f33](https://github.com/createdreamtech/carti/commit/7e94f3304ead030d93cd40418021c13dae5a7f5f)), closes [#71](https://github.com/createdreamtech/carti/issues/71)
+* correct help description of filename ([2795ba0](https://github.com/createdreamtech/carti/commit/2795ba0993f249e77481a2528b6b258348231697)), closes [#74](https://github.com/createdreamtech/carti/issues/74)
+
+
+### Features
+
+* add support for relative path resolution on get ([6a58b3f](https://github.com/createdreamtech/carti/commit/6a58b3f9a4e8222f140a82ad61effeb204e3d8b9)), closes [#76](https://github.com/createdreamtech/carti/issues/76)
+
 ## [1.6.8](https://github.com/createdreamtech/carti/compare/1.6.7...1.6.8) (2021-02-02)
 
 
