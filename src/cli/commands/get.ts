@@ -6,6 +6,7 @@ import { CID } from "multiformats";
 import chalk from "chalk";
 import { handleInstall } from "./install"
 import { commandHandler, progressBar } from "./command_util";
+import path from "path";
 
 
 export const addGetCommand = (config: Config): program.Command => {
@@ -14,10 +15,17 @@ export const addGetCommand = (config: Config): program.Command => {
         .usage("get <name>")
         .option("-y, --yes", "choose first match")
         .option("-p, --path", "only return path information")
+        .option("-r, --relpath", "only return relative path")
         .option("-g, --global", "install bundle into global location")
         .option("-n, --noprogress", "no progress bar output")
         .action(async (name, options) => {
-            return commandHandler(handleGet,config, name, options.yes, options.path, options.global)
+            return commandHandler(handleGet, config,
+                name,
+                options.yes,
+                options.path,
+                options.relpath,
+                options.noprogress,
+                options.global)
         })
     return machineCommand
 }
@@ -42,7 +50,13 @@ const dedup = (buns: Bundle[]) => {
 // handleGet the logic here will cause the commandline to search the global space if global is specified, 
 // otherwise the logic will simply try and resolve the bundle anyway it can (global or local space) and install the data locally 
 // if it's not found in either. This differs from --global , which will try and install any missing bundle to the global space
-async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boolean, noprogress: boolean, global?: boolean): Promise<void> {
+async function handleGet(config: Config, 
+    name:string, 
+    yes:boolean, 
+    pathOnly: boolean,  
+    relPathOnly: boolean, 
+    noprogress: boolean, 
+    global?: boolean): Promise<void> {
     const localBundles = await config.localConfigStorage.get(name)
     const globalBundles = await config.globalLocalConfigStorage.get(name)
     let bundles = global ? globalBundles : localBundles.concat(globalBundles)
@@ -53,12 +67,16 @@ async function handleGet(config: Config, name:string, yes:boolean, pathOnly: boo
         const bundleId = CID.parse(b.id)
         const lExists = await config.bundleStorage.local.diskProvider.exists(bundleId)
         const bPath = await config.bundleStorage.path(bundleId)
-        const path = global ? bPath.global! : lExists ? bPath.local! : bPath.global! 
-        if(pathOnly){
-            console.log(path)
+        const pth = global ? bPath.global! : lExists ? bPath.local! : bPath.global!
+        if(relPathOnly){
+            console.log(path.relative(process.cwd(),pth))
             return
         }
-        console.log(renderBundle(b,path!))
+        if(pathOnly){
+            console.log(pth)
+            return
+        }
+        console.log(renderBundle(b,pth!))
     }
     if(bundles.length === 0){
         bun = await handleInstall(config, name, yes, noprogress, global)
