@@ -115,7 +115,7 @@ export const addBundleCommand = (): program.Command => {
         .requiredOption("-n, --name <name>", "name of the bundle")
         .requiredOption("-v, --version <version>", "version of the bundle")
         .requiredOption("-d, --desc <desc>", "description of the bundle")
-        .option("-f, --filename [name]", "name of the bundle")
+        .option("-f, --filename [name]", "optional filename of the bundle, used to override any default")
         // NOTE global is supported but will not be implemented yet because it helps to have boundaries
         // to reduce complexity of what's publishable, this also makes almost everything global released
         // "aka not a development bundle"
