@@ -13,7 +13,8 @@
     "generate:types": "node utils/generate_types.js",
     "lint": "eslint -c .eslintrc.js --ext .ts",
     "test:c": "npm run lint && jest --coverage",
-    "test": "npm run build && npm run lint && jest"
+    "test": "npm run build && npm run lint && jest --testTimeout 250000",
+    "test:fast": "CARTI_TEST_LOCAL=true jest --testTimeout 250000"
   },
   "bin": {
     "carti": "build/src/cli/index.js"
