@@ -3,12 +3,12 @@ import { makeLogger } from "../../lib/logging"
 import * as cartiLib from "@createdreamtech/carti-core"
 import path, { basename } from "path";
 import { CID } from "multiformats"
-import { config } from "../../lib/config"
+import { Config, config } from "../../lib/config"
 import fs from "fs-extra";
 import os from "os";
 import { https } from "follow-redirects"
-import { progressBar } from "./command_util";
-
+import { commandHandler, progressBar } from "./command_util";
+import url from "url"
 const bundler = cartiLib.bundle
 const logger = makeLogger("Bundle Command")
 
@@ -24,7 +24,8 @@ interface BundleCommand {
 }
 
 const isFilePath = (filePath: string): boolean => {
-    return fs.pathExistsSync(path.resolve(filePath))
+    const containsProtocol = url.parse(filePath).protocol === null 
+    return containsProtocol || fs.pathExistsSync(path.resolve(filePath))
 }
 
 const downloadAsset = async (uri: string, fileName?: string): Promise<string> => {
@@ -42,15 +43,10 @@ const downloadAsset = async (uri: string, fileName?: string): Promise<string> =>
         let fullPath: string;
         https.get(uri, async (response) => {
 
-            /*if (response.statusCode === 302) {
-                fullPath = await downloadAsset(response.headers['location'] as string, fileName);
-            }*/
            if (response.statusCode! >= 400) {
                 reject(new Error(`Failed to get '${uri}' (${response.statusCode})`));
                 return;
-
             }
-            
             
             response.headers['']
             const f = fileName || parseFilename(response.headers['content-disposition'])
@@ -60,11 +56,6 @@ const downloadAsset = async (uri: string, fileName?: string): Promise<string> =>
             fullPath = `${pt}/${f}`
             downloadFile = fs.createWriteStream(fullPath);
             downloadFile.on('finish', () => resolve(fullPath));
-
-        /*    request.on('error', err => {
-                fs.unlink(fullPath, () => reject(err));
-            });
-            */
 
             downloadFile.on('error', err => {
                 fs.unlink(fullPath, () => reject(err));
@@ -120,5 +111,8 @@ export const addBundleCommand = (): program.Command => {
         // to reduce complexity of what's publishable, this also makes almost everything global released
         // "aka not a development bundle"
         //.option("-g, --global", "bundle into the global storage path")
-        .action(handleBundleCommand)
+        .action(async (src: string, options:any) => {
+            return commandHandler(handleBundleCommand, src, options)
+        })
+
 }

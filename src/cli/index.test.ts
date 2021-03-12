@@ -2,11 +2,8 @@ import * as testUtil from "../test/test_util"
 import fs from "fs-extra"
 import rimraf from "rimraf"
 import { promisify } from "util"
-import { spawnSync, SpawnSyncReturns } from "child_process"
-import os from "os"
 
 const rmAll = promisify(rimraf)
-const version = require("../../package.json").version; // tslint:disable-line
 
 const locations = testUtil.createCartiTestLocations()
 const { localTestEnvironment, remoteTestEnvironment } = testUtil.createTestEnvironments(locations) 
@@ -19,10 +16,7 @@ const testBundleCmdArgs = (dir: string) => {
 }
 
 const testBundleCommand = (dir: string) => {
-    return testUtil.createTestCommand(testBundleCmdArgs(dir), (res: SpawnSyncReturns<Buffer>) => {
-        // console.log(res.stdout.toString())
-        // console.error(res.stderr.toString())
-        // TODO refactor this to better support the async nature of spawn
+    return testUtil.createTestCommand(testBundleCmdArgs(dir), (output: string) => {
         return true // contains("bundled: dapp-test-data")(res) 
     })
 }
