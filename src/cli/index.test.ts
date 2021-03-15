@@ -1,7 +1,8 @@
 import * as testUtil from "../test/test_util"
-import fs, { readJSON, readJSONSync } from "fs-extra"
+import fs, { readdirSync, readJSON, readJsonSync, readJSONSync } from "fs-extra"
 import rimraf from "rimraf"
 import { promisify } from "util"
+import { $dataMetaSchema } from "ajv"
 
 const rmAll = promisify(rimraf)
 
@@ -53,8 +54,13 @@ const testAddRepoCmdArgs = (dir: string, uri: string) => {
     return `${cartiCmd(dir)} repo add ${uri}`
 }
 
-const testAddRepoCommand = (dir: string, uri: string) => {
-   return testUtil.createTestCommand(testAddRepoCmdArgs(dir, uri), () => true)
+const testAddRepoCommand = (dir: string, uri: string, home: string) => {
+   return testUtil.createTestCommand(testAddRepoCmdArgs(dir, uri), () => {
+      const bundleIndex = readJsonSync(`${home}/.carti/.bundles_index.json`)
+      return (bundleIndex 
+          && bundleIndex[uri] 
+          && bundleIndex[uri][0].id === "baenrwic6ybfsdmdtm52fhgbeip6ndoi3e62bonaadmotji4x6vvdpedt3m")
+    })
 }
 
 const testMachineInitCmdArgs = (dir: string) => {
@@ -127,7 +133,7 @@ describe("integration tests for cli", () => {
         const publishBundleCmd = testPublishCommand(localTestEnvironment.cwd,
             diskLocation(localTestEnvironment.cwd))
         const addRepoCmd = testAddRepoCommand(remoteTestEnvironment.cwd,
-            localTestEnvironment.cwd)
+            localTestEnvironment.cwd, remoteTestEnvironment.env["HOME"])
         const installBundleCmd = testBundleInstallCommand(remoteTestEnvironment.cwd, "dapp-test-data")
         const getCmd = testGetCommmand(remoteTestEnvironment.cwd, "dapp-test-data")
         const machineInitCmd = testMachineInitCommand(remoteTestEnvironment.cwd, () => {
