@@ -17,7 +17,7 @@ const testBundleCmdArgs = (dir: string) => {
 
 const testBundleCommand = (dir: string) => {
     return testUtil.createTestCommand(testBundleCmdArgs(dir), (output: string) => {
-        return true // contains("bundled: dapp-test-data")(res) 
+        return testUtil.contains("bundled: dapp-test-data")(output);
     })
 }
 
