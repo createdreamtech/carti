@@ -1,5 +1,5 @@
 import * as testUtil from "../test/test_util"
-import fs from "fs-extra"
+import fs, { readJSON, readJSONSync } from "fs-extra"
 import rimraf from "rimraf"
 import { promisify } from "util"
 
@@ -43,7 +43,10 @@ const testPublishCmdArgs = (dir: string, uri: string) => {
     return `${cartiCmd(dir)} publish uri dapp-test-data ${uri}`
 }
 const testPublishCommand = (dir: string, uri: string) => {
-    return testUtil.createTestCommand(testPublishCmdArgs(dir, uri), () => true);
+    return testUtil.createTestCommand(testPublishCmdArgs(dir, uri), () => {
+        const cfg = readJSONSync(`${dir}/bundles.json`)
+        return (cfg.bundles && cfg.bundles[0] && cfg.bundles[0].uri === uri)
+    });
 }
 
 const testAddRepoCmdArgs = (dir: string, uri: string) => {
@@ -149,7 +152,6 @@ describe("integration tests for cli", () => {
         const machineInstallCmd = testMachineInstallCommand(localTestEnvironment.cwd, `${remoteTestEnvironment.cwd}/carti-machine-package.json`)
         expect(await testUtil.testCommand(localBundleCmd, localTestEnvironment, CARTI_TEST_LOCAL)).toBe(true)
         //otherwise throws exception
-        
         expect(await testUtil.testCommand(publishBundleCmd, Object.assign({}, localTestEnvironment, { input: "\r\n" }), CARTI_TEST_LOCAL)).toBe(true)
        
         expect(await testUtil.testCommand(addRepoCmd, remoteTestEnvironment, CARTI_TEST_LOCAL)).toBe(true)
