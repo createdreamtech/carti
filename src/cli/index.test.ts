@@ -85,24 +85,24 @@ const testMachineAddCmdArgs = (dir: string, bundleName: string, cmd: AddCmdOptio
     return `${cartiCmd(dir)} machine add flash ${bundleName} --start ${cmd.start} --length ${cmd.length} -m cool`
 }
 
-const testMachineAddCommand = (dir: string, bundleName: string, cmd: AddCmdOptions) => {
-    return testUtil.createTestCommand(testMachineAddCmdArgs(dir, bundleName, cmd), () => true)
+const testMachineAddCommand = (dir: string, bundleName: string, cmd: AddCmdOptions, check: () => boolean) => {
+    return testUtil.createTestCommand(testMachineAddCmdArgs(dir, bundleName, cmd), check)
 }
 
 const testMachineRmCmdArgs = (dir: string, label: string) => {
     return `${cartiCmd(dir)} machine rm flash ${label}`
 }
 
-const testMachineRmCommand = (dir: string, label: string) => {
-    return testUtil.createTestCommand(testMachineRmCmdArgs(dir, label), () => true)
+const testMachineRmCommand = (dir: string, label: string, check: () => boolean) => {
+    return testUtil.createTestCommand(testMachineRmCmdArgs(dir, label), check) 
 }
 
 const testMachineBuildArgs = (dir: string) => {
     return `${cartiCmd(dir)} machine build`
 }
 
-const testMachineBuildCommand = (dir: string) => {
-    return testUtil.createTestCommand(testMachineBuildArgs(dir), () => true)
+const testMachineBuildCommand = (dir: string, check: () => boolean) => {
+    return testUtil.createTestCommand(testMachineBuildArgs(dir), check)
 }
 
 const testMachineInstallArgs = (dir: string, uri: string) => {
@@ -140,25 +140,37 @@ describe("integration tests for cli", () => {
             localTestEnvironment.cwd, remoteTestEnvironment.env["HOME"])
         const installBundleCmd = testBundleInstallCommand(remoteTestEnvironment.cwd, "dapp-test-data")
         const getCmd = testGetCommmand(remoteTestEnvironment.cwd, "dapp-test-data")
+        const readMachineJSON = () => {
+            const machineFile = fs.readFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`)
+            return JSON.parse(machineFile.toString())
+        }
         const machineInitCmd = testMachineInitCommand(remoteTestEnvironment.cwd, () => {
 
             // NOTE by default the init fills out a config with default settings so you must edit the file specifically
             // for your flash drive, there is a concurrency issue that prevents this from happening.
             // not explicitly after  the command has finished. Hence this inline code here
-            const machineFile = fs.readFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`)
-            const machineJSON = JSON.parse(machineFile.toString())
-            machineJSON.machineConfig.flash_drive = machineJSON.machineConfig.flash_drive
-                .filter((flash: any) => { flash.cid !== "default-flash" })
-            fs.writeFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`,
-                JSON.stringify(machineJSON, null, 2))
+            const machineJSON = readMachineJSON()
             return (machineJSON.version === "0.0.0-development")
         })
         const machineAddCmd = testMachineAddCommand(remoteTestEnvironment.cwd, "dapp-test-data",
-            { length: "0x100000", start: "0x8000000000000000", label: "cool" })
+            { length: "0x100000", start: "0x8000000000000000", label: "cool" }, () => {
+                const machine = readMachineJSON()
+                return machine.machineConfig.flash_drive.filter((f:any)=> {
+                    return f.label === "cool"
+                }).length > 0
+            })
 
-        const machineRmCmd = testMachineRmCommand(remoteTestEnvironment.cwd, "cool")
+        const machineRmCmd = testMachineRmCommand(remoteTestEnvironment.cwd, "cool", () => {
+                const machine = readMachineJSON()
+                return machine.machineConfig.flash_drive.filter((f:any)=> {
+                    return f.label === "cool"
+                }).length === 0
+            })
 
-        const machineBuildCmd = testMachineBuildCommand(remoteTestEnvironment.cwd)
+        const machineBuildCmd = testMachineBuildCommand(remoteTestEnvironment.cwd, () => {
+            const cfg = fs.readFileSync(`${remoteTestEnvironment.cwd}/machine-config.lua`)
+            return cfg.toString("utf-8").match(/bootargs/) !== null
+        })
         const machineInstallCmd = testMachineInstallCommand(localTestEnvironment.cwd, `${remoteTestEnvironment.cwd}/carti-machine-package.json`)
         expect(await testUtil.testCommand(localBundleCmd, localTestEnvironment, CARTI_TEST_LOCAL)).toBe(true)
         //otherwise throws exception
