@@ -35,7 +35,11 @@ const testGetArgs = (dir: string, bundleName: string) => {
 }
 
 const testGetCommmand = (dir: string, bundleName: string) => {
-    return testUtil.createTestCommand(testGetArgs(dir, bundleName), () => true)
+    return testUtil.createTestCommand(testGetArgs(dir, bundleName), () => {
+    const pathPart = "/carti_bundles/baenrwic6ybfsdmdtm52fhgbeip6ndoi3e62bonaadmotji4x6vvdpedt3m/dapp-test-data.ext2"
+    const expectedPath = `${dir}${pathPart}`
+    return (fs.statSync(expectedPath).size > 0)
+    })
 }
 
 const diskLocation = (dir: string) =>
@@ -67,7 +71,7 @@ const testMachineInitCmdArgs = (dir: string) => {
     return `${cartiCmd(dir)} machine init`
 }
 
-const testMachineInitCommand = (dir: string, check: () => true = () => true) => {
+const testMachineInitCommand = (dir: string, check: () => boolean) => {
     return testUtil.createTestCommand(testMachineInitCmdArgs(dir), check)
 }
 
@@ -147,7 +151,7 @@ describe("integration tests for cli", () => {
                 .filter((flash: any) => { flash.cid !== "default-flash" })
             fs.writeFileSync(`${remoteTestEnvironment.cwd}/carti-machine-package.json`,
                 JSON.stringify(machineJSON, null, 2))
-            return true;
+            return (machineJSON.version === "0.0.0-development")
         })
         const machineAddCmd = testMachineAddCommand(remoteTestEnvironment.cwd, "dapp-test-data",
             { length: "0x100000", start: "0x8000000000000000", label: "cool" })
