@@ -1,3 +1,17 @@
+## [1.7.1](https://github.com/createdreamtech/carti/compare/1.7.0...1.7.1) (2021-04-14)
+
+
+### Bug Fixes
+
+* add proper check for add repo command to refer to correct repo ([bac8f17](https://github.com/createdreamtech/carti/commit/bac8f17b64cdbb32aaf6498491a1478c3861c897))
+* add proper error wrapping to bundle ([0d71e59](https://github.com/createdreamtech/carti/commit/0d71e5987c43ded3874e9b2f8fcc46572c8e6a5e))
+* correct machine cmd tests to properly check results ([1ab2cab](https://github.com/createdreamtech/carti/commit/1ab2cab9202b022d86b40775316f9d7154eaaa74))
+* get/machine init command test to check result ([a741dcc](https://github.com/createdreamtech/carti/commit/a741dcc600cc47a94421f90648e79213b2c23260))
+* output check for proper operation ([d350f2a](https://github.com/createdreamtech/carti/commit/d350f2a3a135a80407e592283eae18381f3e950b))
+* refactor integration tests ([c22810b](https://github.com/createdreamtech/carti/commit/c22810b790a89e630ca399a9d498915472001ff2))
+* refactor to use spawn vs spawnSync ([556ebcc](https://github.com/createdreamtech/carti/commit/556ebccabeadce412643681be4c60a2c1628c16c))
+* test for publish to check output ([1bce85f](https://github.com/createdreamtech/carti/commit/1bce85f380762fba5f41b05b3776f05fdd16e2dc))
+
 # [1.7.0](https://github.com/createdreamtech/carti/compare/1.6.8...1.7.0) (2021-02-18)
 
 
